@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Hệ Thống Mượn Trả Thiết Bị Lab'">Hệ Thống Mượn Trả Thiết Bị Lab</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .nav-link {
+            font-weight: 500;
+            transition: color 0.2s ease-in-out;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #fef08a !important;
+        }
+        .main-content {
+            flex: 1 0 auto;
+            padding-bottom: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .badge-notification {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 0.7rem;
+            border-radius: 50%;
+        }
+        .step-progress {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 20px 0;
+        }
+        .step-progress::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e2e8f0;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .step-item {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            background: #fff;
+            padding: 0 10px;
+        }
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        .step-item.active .step-icon {
+            background: #2563eb;
+            color: #fff;
+            box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.2);
+        }
+        .step-item.completed .step-icon {
+            background: #16a34a;
+            color: #fff;
+        }
+        .footer {
+            background-color: #1e293b;
+            color: #94a3b8;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar Fragment -->
+    <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/student/equipment}">
+                <i class="fas fa-microchip fa-lg text-warning"></i>
+                <span>Lab Equipment System</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/student/equipment}">
+                            <i class="fas fa-th-large me-1"></i> Danh mục thiết bị
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/student/loans}">
+                            <i class="fas fa-clipboard-list me-1"></i> Phiếu mượn của tôi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/student/loans/create}">
+                            <i class="fas fa-plus-circle me-1"></i> Đăng ký mượn mới
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <!-- Notification Bell -->
+                    <li class="nav-item me-3 position-relative">
+                        <a class="nav-link position-relative p-2" th:href="@{/student/notifications}" title="Thông báo phiếu mượn">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span th:if="${unreadNotificationCount > 0}"
+                                  th:text="${unreadNotificationCount}"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                0
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- User Account / Switch User Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userMenu" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fa-lg"></i>
+                            <span th:text="${currentUser != null ? currentUser.fullName : 'Sinh viên'}">Nguyễn Văn Ngọc</span>
+                            <span th:if="${currentUser != null}" class="badge bg-light text-primary ms-1" th:text="${currentUser.role}">STUDENT</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><h6 class="dropdown-header">Tài khoản sinh viên</h6></li>
+                            <li>
+                                <div class="px-3 py-1 small text-muted">
+                                    <i class="fas fa-envelope me-1"></i> <span th:text="${currentUser != null ? currentUser.email : ''}">email</span><br>
+                                    <i class="fas fa-phone me-1"></i> <span th:text="${currentUser != null ? currentUser.phone : ''}">phone</span>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Chuyển tài khoản thử nghiệm</h6></li>
+                            <li><a class="dropdown-item" th:href="@{/switch-user/student}"><i class="fas fa-user me-2"></i> Sinh viên: Nguyễn Văn Ngọc (student)</a></li>
+                            <li><a class="dropdown-item" th:href="@{/switch-user/student2}"><i class="fas fa-user me-2"></i> Sinh viên: Trần Thị Mai (student2)</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" th:href="@{/login?logout}"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alert Messages Fragment -->
+    <div th:fragment="alerts" class="container mt-3">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${successMessage}">Thao tác thành công!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${errorMessage}">Đã xảy ra lỗi!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+
+    <!-- Footer Fragment -->
+    <footer th:fragment="footer" class="footer text-center">
+        <div class="container">
+            <p class="mb-1 fw-medium text-light">Hệ Thống Quản Lý Mượn Trả Thiết Bị Phòng Lab - FPT University</p>
+            <p class="small mb-0">Module Sinh viên: Tra cứu thiết bị, đăng ký mượn, theo dõi tiến trình và hủy phiếu mượn (PIC: Ngọc)</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <div th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
+</body>
+</html>

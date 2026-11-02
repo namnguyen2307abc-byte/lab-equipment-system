@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${device.name} + ' - Chi tiết thiết bị')}"></head>
+<body>
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Alerts -->
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="container mt-4">
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/student/equipment}" class="text-decoration-none">Danh mục thiết bị</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${device.name}">Kit Arduino Uno R3</li>
+                </ol>
+            </nav>
+
+            <div class="row g-4">
+                <!-- Left Column: Device Main Info & Specifications (UC-EM-02) -->
+                <div class="col-lg-8">
+                    <div class="card p-4 shadow-sm mb-4">
+                        <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+                            <div>
+                                <span class="badge bg-dark fs-6 px-3 py-2 mb-2" th:text="${device.code}">ARD-001</span>
+                                <h2 class="fw-bold text-primary mb-1" th:text="${device.name}">Kit Arduino Uno R3</h2>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-folder-open me-1 text-warning"></i>
+                                    Danh mục: <strong class="text-dark" th:text="${device.category.name}">Vi điều khiển</strong>
+                                </p>
+                            </div>
+
+                            <!-- Availability Status Badge -->
+                            <div>
+                                <span th:if="${device.status.name() == 'AVAILABLE'}" class="badge bg-success fs-6 px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i> Khả dụng (Sẵn sàng cho mượn)
+                                </span>
+                                <span th:if="${device.status.name() == 'BORROWED'}" class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                    <i class="fas fa-clock me-1"></i> Đang được mượn
+                                </span>
+                                <span th:if="${device.status.name() == 'MAINTENANCE'}" class="badge bg-danger fs-6 px-3 py-2">
+                                    <i class="fas fa-tools me-1"></i> Đang bảo trì
+                                </span>
+                                <span th:if="${device.status.name() == 'RETIRED'}" class="badge bg-secondary fs-6 px-3 py-2">
+                                    <i class="fas fa-archive me-1"></i> Ngừng sử dụng
+                                </span>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Detailed Specifications -->
+                        <div class="mb-4">
+                            <h5 class="fw-bold text-secondary mb-3">
+                                <i class="fas fa-microchip me-2 text-primary"></i>Thông Số Kỹ Thuật Chi Tiết
+                            </h5>
+                            <div class="p-3 bg-light rounded-3 border" style="white-space: pre-line; line-height: 1.7;" th:text="${device.specifications}">
+                                Thông số kỹ thuật chi tiết của thiết bị...
+                            </div>
+                        </div>
+
+                        <!-- Location & Lab Info -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-white rounded-3 border">
+                                    <small class="text-muted d-block mb-1">Vị trí lưu kho thiết bị</small>
+                                    <strong class="text-dark">
+                                        <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                        <span th:text="${device.location ?: 'Phòng Lab 302'}">Tủ A1 - Kệ 1</span>
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-white rounded-3 border">
+                                    <small class="text-muted d-block mb-1">Thời gian cập nhật gần nhất</small>
+                                    <strong class="text-dark">
+                                        <i class="fas fa-calendar-alt text-primary me-1"></i>
+                                        <span th:text="${#temporals.format(device.createdAt, 'dd/MM/yyyy HH:mm')}">01/11/2026</span>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Bar -->
+                        <div class="d-flex gap-2 mt-2">
+                            <a th:href="@{/student/equipment}" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-arrow-left me-1"></i> Trở về danh mục
+                            </a>
+                            <a th:if="${device.isAvailable()}"
+                               th:href="@{'/student/loans/create'(deviceId=${device.id})}"
+                               class="btn btn-primary px-4">
+                                <i class="fas fa-hand-holding me-1"></i> Đăng Ký Mượn Thiết Bị Này
+                            </a>
+                            <button th:unless="${device.isAvailable()}" class="btn btn-secondary px-4" disabled>
+                                <i class="fas fa-ban me-1"></i> Thiết Bị Đang Không Khả Dụng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Lab Loan Policy & Guide -->
+                <div class="col-lg-4">
+                    <div class="card p-4 shadow-sm mb-4 bg-light border-0">
+                        <h5 class="fw-bold text-dark mb-3">
+                            <i class="fas fa-info-circle text-primary me-2"></i>Quy Định Mượn Thiết Bị
+                        </h5>
+                        <ul class="list-unstyled small text-secondary mb-0" style="line-height: 1.8;">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Mỗi lần đăng ký mượn tối đa <strong>1 thiết bị vật lý</strong>.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Thời gian mượn tiêu chuẩn: từ <strong>1 đến 7 ngày</strong>.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Sau khi gửi phiếu, nhân viên lab sẽ xét duyệt trong vòng <strong>24h làm việc</strong>.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Sinh viên có thể <strong>hủy phiếu mượn</strong> khi phiếu đang ở trạng thái <em>"Chờ duyệt"</em>.
+                            </li>
+                            <li>
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                Mang theo thẻ sinh viên khi đến bàn giao và kiểm tra linh kiện cẩn thận.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card p-4 shadow-sm text-center">
+                        <i class="fas fa-headset fa-2x text-primary mb-2"></i>
+                        <h6 class="fw-bold mb-1">Cần hỗ trợ kỹ thuật Lab?</h6>
+                        <p class="small text-muted mb-3">Liên hệ bàn trực kỹ thuật phòng Lab 302 để được giải đáp thắc mắc.</p>
+                        <span class="badge bg-primary-subtle text-primary p-2">Email: lab-support@fpt.edu.vn</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

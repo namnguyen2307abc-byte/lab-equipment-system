@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đăng ký mượn thiết bị')}"></head>
+<body>
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Alerts -->
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h3 class="fw-bold mb-1 text-primary">
+                                <i class="fas fa-file-signature me-2"></i>Tạo Phiếu Đăng Ký Mượn Thiết Bị
+                            </h3>
+                            <p class="text-muted mb-0">Điền thông tin và gửi yêu cầu mượn thiết bị đến ban quản lý phòng Lab</p>
+                        </div>
+                        <a th:href="@{/student/equipment}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Quay lại
+                        </a>
+                    </div>
+
+                    <!-- Create Form (UC-EM-03) -->
+                    <div class="card p-4 shadow-sm mb-4">
+                        <form th:action="@{/student/loans/create}" th:object="${loanRequestDto}" method="post">
+                            <!-- Student Info Readonly Box -->
+                            <div class="bg-light p-3 rounded-3 mb-4 border">
+                                <h6 class="fw-bold text-secondary mb-2">
+                                    <i class="fas fa-user-graduate me-1 text-primary"></i> Thông Tin Sinh Viên Mượn
+                                </h6>
+                                <div class="row g-2 small">
+                                    <div class="col-md-4">
+                                        <span class="text-muted">Họ tên:</span>
+                                        <strong class="d-block text-dark" th:text="${currentUser != null ? currentUser.fullName : 'Sinh viên'}">Nguyễn Văn Ngọc</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted">Email:</span>
+                                        <strong class="d-block text-dark" th:text="${currentUser != null ? currentUser.email : ''}">ngoc.nv@fpt.edu.vn</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted">Số điện thoại:</span>
+                                        <strong class="d-block text-dark" th:text="${currentUser != null ? currentUser.phone : '0912345678'}">0912345678</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Selected Device Alert if pre-selected -->
+                            <div th:if="${selectedDevice != null}" class="alert alert-info d-flex align-items-center gap-3 mb-3">
+                                <i class="fas fa-microchip fa-2x text-primary"></i>
+                                <div>
+                                    <strong th:text="${selectedDevice.code} + ' - ' + ${selectedDevice.name}">ARD-001 - Kit Arduino Uno R3</strong>
+                                    <div class="small text-muted" th:text="'Danh mục: ' + ${selectedDevice.category.name} + ' | Vị trí: ' + ${selectedDevice.location}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Device Selection -->
+                            <div class="mb-3">
+                                <label for="deviceId" class="form-label fw-semibold">
+                                    Thiết bị muốn mượn <span class="text-danger">*</span>
+                                </label>
+                                <select id="deviceId" th:field="*{deviceId}" class="form-select" th:classappend="${#fields.hasErrors('deviceId')} ? 'is-invalid' : ''">
+                                    <option value="">-- Chọn thiết bị trong kho khả dụng --</option>
+                                    <option th:each="dev : ${availableDevices}"
+                                            th:value="${dev.id}"
+                                            th:text="${dev.code} + ' - ' + ${dev.name} + ' (' + ${dev.category.name} + ')'"
+                                            th:selected="${selectedDevice != null and selectedDevice.id == dev.id}">
+                                    </option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('deviceId')}" th:errors="*{deviceId}">
+                                    Vui lòng chọn thiết bị muốn mượn
+                                </div>
+                                <div class="form-text small">Chỉ hiển thị các thiết bị đang ở trạng thái Khả dụng (Available).</div>
+                            </div>
+
+                            <!-- Expected Return Date/Time (due_at) -->
+                            <div class="mb-3">
+                                <label for="dueAt" class="form-label fw-semibold">
+                                    Thời gian dự kiến hoàn trả (due_at) <span class="text-danger">*</span>
+                                </label>
+                                <input type="datetime-local" id="dueAt" th:field="*{dueAt}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('dueAt')} ? 'is-invalid' : ''">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dueAt')}" th:errors="*{dueAt}">
+                                    Thời gian dự kiến trả phải sau thời điểm hiện tại
+                                </div>
+                                <div class="form-text small">Vui lòng chọn ngày giờ bạn cam kết mang thiết bị đến phòng Lab để làm thủ tục hoàn trả.</div>
+                            </div>
+
+                            <!-- Purpose -->
+                            <div class="mb-3">
+                                <label for="purpose" class="form-label fw-semibold">
+                                    Mục đích sử dụng thiết bị <span class="text-danger">*</span>
+                                </label>
+                                <textarea id="purpose" th:field="*{purpose}" rows="3" class="form-control"
+                                          placeholder="Ví dụ: Phục vụ làm bài tập lớn môn Lập trình hệ thống nhúng (HSF302), nghiên cứu đồ án IoT..."
+                                          th:classappend="${#fields.hasErrors('purpose')} ? 'is-invalid' : ''"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}">
+                                    Mục đích mượn không được để trống
+                                </div>
+                            </div>
+
+                            <!-- Notes -->
+                            <div class="mb-4">
+                                <label for="notes" class="form-label fw-semibold">
+                                    Ghi chú bổ sung (tùy chọn)
+                                </label>
+                                <textarea id="notes" th:field="*{notes}" rows="2" class="form-control"
+                                          placeholder="Ví dụ: Cần mượn kèm dây cáp nạp USB, nguồn adapter 9V/12V, hoặc breadboard..."
+                                          th:classappend="${#fields.hasErrors('notes')} ? 'is-invalid' : ''"></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}"></div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-end gap-2">
+                                <a th:href="@{/student/equipment}" class="btn btn-outline-secondary px-4">
+                                    <i class="fas fa-times me-1"></i> Hủy
+                                </a>
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                    <i class="fas fa-paper-plane me-1"></i> Gửi Yêu Cầu Mượn
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
