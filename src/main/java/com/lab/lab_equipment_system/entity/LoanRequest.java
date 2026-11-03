@@ -1,6 +1,7 @@
 package com.lab.lab_equipment_system.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,22 +39,27 @@ public class LoanRequest {
     @Column(nullable = false, length = 30)
     private LoanStatus status = LoanStatus.PENDING;
 
-    @Column(length = 500)
+    @Nationalized
+    @Column(columnDefinition = "NVARCHAR(500)")
     private String purpose;
 
-    @Column(length = 500)
+    @Nationalized
+    @Column(columnDefinition = "NVARCHAR(500)")
     private String notes;
 
-    @Column(name = "cancel_reason", length = 500)
+    @Nationalized
+    @Column(name = "cancel_reason", columnDefinition = "NVARCHAR(500)")
     private String cancelReason;
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "reject_reason", length = 500)
+    @Nationalized
+    @Column(name = "reject_reason", columnDefinition = "NVARCHAR(500)")
     private String rejectReason;
 
-    @Column(name = "staff_notes", length = 500)
+    @Nationalized
+    @Column(name = "staff_notes", columnDefinition = "NVARCHAR(500)")
     private String staffNotes;
 
     @ManyToOne(fetch = FetchType.LAZY)

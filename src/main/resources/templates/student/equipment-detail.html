@@ -2,16 +2,10 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${device.name} + ' - Chi tiết thiết bị')}"></head>
 <body>
-    <!-- Navbar -->
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
-
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Alerts -->
         <div th:replace="~{fragments/layout :: alerts}"></div>
-
         <div class="container mt-4">
-            <!-- Breadcrumb Navigation -->
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/student/equipment}" class="text-decoration-none">Danh mục thiết bị</a></li>
@@ -20,7 +14,6 @@
             </nav>
 
             <div class="row g-4">
-                <!-- Left Column: Device Main Info & Specifications (UC-EM-02) -->
                 <div class="col-lg-8">
                     <div class="card p-4 shadow-sm mb-4">
                         <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
@@ -32,8 +25,6 @@
                                     Danh mục: <strong class="text-dark" th:text="${device.category.name}">Vi điều khiển</strong>
                                 </p>
                             </div>
-
-                            <!-- Availability Status Badge -->
                             <div>
                                 <span th:if="${device.status.name() == 'AVAILABLE'}" class="badge bg-success fs-6 px-3 py-2">
                                     <i class="fas fa-check-circle me-1"></i> Khả dụng (Sẵn sàng cho mượn)
@@ -52,7 +43,6 @@
 
                         <hr>
 
-                        <!-- Detailed Specifications -->
                         <div class="mb-4">
                             <h5 class="fw-bold text-secondary mb-3">
                                 <i class="fas fa-microchip me-2 text-primary"></i>Thông Số Kỹ Thuật Chi Tiết
@@ -62,7 +52,6 @@
                             </div>
                         </div>
 
-                        <!-- Location & Lab Info -->
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <div class="p-3 bg-white rounded-3 border">
@@ -84,7 +73,6 @@
                             </div>
                         </div>
 
-                        <!-- Action Bar -->
                         <div class="d-flex gap-2 mt-2">
                             <a th:href="@{/student/equipment}" class="btn btn-outline-secondary px-4">
                                 <i class="fas fa-arrow-left me-1"></i> Trở về danh mục
@@ -101,7 +89,6 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Lab Loan Policy & Guide -->
                 <div class="col-lg-4">
                     <div class="card p-4 shadow-sm mb-4 bg-light border-0">
                         <h5 class="fw-bold text-dark mb-3">
@@ -141,8 +128,6 @@
             </div>
         </div>
     </main>
-
-    <!-- Footer -->
     <footer th:replace="~{fragments/layout :: footer}"></footer>
     <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>

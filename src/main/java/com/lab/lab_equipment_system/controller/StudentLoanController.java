@@ -71,7 +71,7 @@ public class StudentLoanController {
                                     RedirectAttributes redirectAttributes) {
         User student = userService.getCurrentUser();
         if (student == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng đăng nhập để thực hiện chức năng này.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 th\u1ef1c hi\u1ec7n ch\u1ee9c n\u0103ng n\u00e0y.");
             return "redirect:/login";
         }
 
@@ -89,7 +89,7 @@ public class StudentLoanController {
         try {
             LoanRequest createdLoan = studentLoanService.createLoanRequest(student, dto);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Đăng ký mượn thiết bị thành công! Mã phiếu của bạn là: " + createdLoan.getRequestCode());
+                    "\u0110\u0103ng k\u00fd m\u01b0\u1ee3n thi\u1ebft b\u1ecb th\u00e0nh c\u00f4ng! M\u00e3 phi\u1ebfu c\u1ee7a b\u1ea1n l\u00e0: " + createdLoan.getRequestCode());
             return "redirect:/student/loans/" + createdLoan.getId();
         } catch (Exception ex) {
             model.addAttribute("errorMessage", ex.getMessage());
@@ -107,7 +107,7 @@ public class StudentLoanController {
                                     RedirectAttributes redirectAttributes) {
         User student = userService.getCurrentUser();
         if (student == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng đăng nhập để xem phiếu mượn.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 xem phi\u1ebfu m\u01b0\u1ee3n.");
             return "redirect:/login";
         }
 
@@ -127,7 +127,7 @@ public class StudentLoanController {
                                   RedirectAttributes redirectAttributes) {
         User student = userService.getCurrentUser();
         if (student == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng đăng nhập để xem thông tin.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 xem th\u00f4ng tin.");
             return "redirect:/login";
         }
 
@@ -151,13 +151,13 @@ public class StudentLoanController {
                                     RedirectAttributes redirectAttributes) {
         User student = userService.getCurrentUser();
         if (student == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng đăng nhập để thực hiện.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 th\u1ef1c hi\u1ec7n.");
             return "redirect:/login";
         }
 
         if (bindingResult.hasErrors()) {
             String errorMsg = bindingResult.getFieldError() != null ?
-                    bindingResult.getFieldError().getDefaultMessage() : "Dữ liệu không hợp lệ";
+                    bindingResult.getFieldError().getDefaultMessage() : "D\u1eef li\u1ec7u kh\u00f4ng h\u1ee3p l\u1ec7";
             redirectAttributes.addFlashAttribute("errorMessage", errorMsg);
             return "redirect:/student/loans/" + cancelDto.getLoanId();
         }
@@ -165,7 +165,7 @@ public class StudentLoanController {
         try {
             LoanRequest updatedLoan = studentLoanService.cancelLoanRequest(student, cancelDto);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "Đã hủy phiếu mượn " + updatedLoan.getRequestCode() + " thành công.");
+                    "\u0110\u00e3 h\u1ee7y phi\u1ebfu m\u01b0\u1ee3n " + updatedLoan.getRequestCode() + " th\u00e0nh c\u00f4ng.");
             return "redirect:/student/loans/" + updatedLoan.getId();
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -180,7 +180,7 @@ public class StudentLoanController {
     public String viewNotifications(Model model, RedirectAttributes redirectAttributes) {
         User student = userService.getCurrentUser();
         if (student == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Vui lòng đăng nhập để xem thông báo.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 xem th\u00f4ng b\u00e1o.");
             return "redirect:/login";
         }
 

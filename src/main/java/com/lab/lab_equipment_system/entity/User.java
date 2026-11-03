@@ -1,6 +1,7 @@
 package com.lab.lab_equipment_system.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,7 +18,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Nationalized
+    @Column(name = "full_name", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String fullName;
 
     @Column(nullable = false, unique = true, length = 100)

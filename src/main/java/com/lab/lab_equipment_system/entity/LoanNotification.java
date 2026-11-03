@@ -1,6 +1,7 @@
 package com.lab.lab_equipment_system.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,9 +20,11 @@ public class LoanNotification {
     @JoinColumn(name = "loan_request_id")
     private LoanRequest loanRequest;
 
-    @Column(nullable = false, length = 150)
+    @Nationalized
+    @Column(nullable = false, columnDefinition = "NVARCHAR(150)")
     private String title;
 
+    @Nationalized
     @Column(nullable = false, columnDefinition = "NVARCHAR(MAX)")
     private String message;
 

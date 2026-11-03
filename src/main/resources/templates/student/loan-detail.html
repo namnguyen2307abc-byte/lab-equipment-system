@@ -2,16 +2,10 @@
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Chi tiết phiếu mượn ' + ${loan.requestCode})}"></head>
 <body>
-    <!-- Navbar -->
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
-
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Alerts -->
         <div th:replace="~{fragments/layout :: alerts}"></div>
-
         <div class="container mt-4">
-            <!-- Breadcrumb Navigation -->
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a th:href="@{/student/loans}" class="text-decoration-none">Phiếu mượn của tôi</a></li>
@@ -19,7 +13,6 @@
                 </ol>
             </nav>
 
-            <!-- Header Section -->
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
@@ -30,13 +23,10 @@
                     </div>
                     <p class="text-muted mb-0">Thời gian tạo phiếu: <span th:text="${#temporals.format(loan.createdAt, 'dd/MM/yyyy HH:mm:ss')}">02/11/2026 09:00:00</span></p>
                 </div>
-
                 <div class="d-flex gap-2">
                     <a th:href="@{/student/loans}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Danh sách phiếu
                     </a>
-
-                    <!-- Cancel button trigger modal (UC-EM-07) -->
                     <button th:if="${loan.isCancellable()}"
                             type="button"
                             class="btn btn-danger"
@@ -47,13 +37,10 @@
                 </div>
             </div>
 
-            <!-- Workflow Progress Stage Tracker (UC-EM-05: Current workflow stage) -->
             <div class="card mb-4 border-0 shadow-sm p-4 bg-white rounded-3">
                 <h6 class="fw-bold text-secondary mb-3">
                     <i class="fas fa-tasks me-1 text-primary"></i> Tiến Trình Xử Lý Phiếu Mượn (Workflow Stage)
                 </h6>
-
-                <!-- When Status is REJECTED or CANCELLED -->
                 <div th:if="${loan.status.name() == 'REJECTED'}" class="alert alert-danger d-flex align-items-center gap-3 mb-0">
                     <i class="fas fa-times-circle fa-2x"></i>
                     <div>
@@ -70,16 +57,12 @@
                     </div>
                 </div>
 
-                <!-- Normal Workflow Progress (Pending -> Approved -> Handed Over -> Returned) -->
                 <div th:if="${loan.status.name() != 'REJECTED' and loan.status.name() != 'CANCELLED'}" class="step-progress">
-                    <!-- Step 1: Submit -->
                     <div class="step-item completed">
                         <div class="step-icon"><i class="fas fa-check"></i></div>
                         <div class="fw-semibold small">1. Đã gửi yêu cầu</div>
                         <div class="text-muted" style="font-size: 0.75rem;" th:text="${#temporals.format(loan.createdAt, 'dd/MM HH:mm')}">02/11 09:00</div>
                     </div>
-
-                    <!-- Step 2: Approved / Pending -->
                     <div class="step-item"
                          th:classappend="${loan.status.name() == 'APPROVED' or loan.status.name() == 'HANDED_OVER' or loan.status.name() == 'RETURNED'} ? 'completed' : (${loan.status.name() == 'PENDING'} ? 'active' : '')">
                         <div class="step-icon">
@@ -91,8 +74,6 @@
                             <span th:if="${loan.status.name() != 'PENDING'}">Đã duyệt</span>
                         </div>
                     </div>
-
-                    <!-- Step 3: Handover -->
                     <div class="step-item"
                          th:classappend="${loan.status.name() == 'HANDED_OVER' or loan.status.name() == 'RETURNED'} ? 'completed' : (${loan.status.name() == 'APPROVED'} ? 'active' : '')">
                         <div class="step-icon">
@@ -105,8 +86,6 @@
                             <span th:if="${loan.handoverAt == null and loan.status.name() != 'APPROVED'}">Chưa bàn giao</span>
                         </div>
                     </div>
-
-                    <!-- Step 4: Return -->
                     <div class="step-item"
                          th:classappend="${loan.status.name() == 'RETURNED'} ? 'completed' : (${loan.status.name() == 'HANDED_OVER'} ? 'active' : '')">
                         <div class="step-icon">
@@ -122,9 +101,7 @@
                 </div>
             </div>
 
-            <!-- Details Section (UC-EM-05) -->
             <div class="row g-4">
-                <!-- Left: Loan Request Info & Timestamps -->
                 <div class="col-lg-6">
                     <div class="card p-4 shadow-sm h-100">
                         <h5 class="fw-bold text-secondary mb-3 border-bottom pb-2">
@@ -146,9 +123,7 @@
                                 </tr>
                                 <tr>
                                     <td class="text-muted ps-0">Hạn dự kiến hoàn trả (due_at):</td>
-                                    <td>
-                                        <strong class="text-danger" th:text="${#temporals.format(loan.dueAt, 'dd/MM/yyyy HH:mm')}">05/11/2026 17:00</strong>
-                                    </td>
+                                    <td><strong class="text-danger" th:text="${#temporals.format(loan.dueAt, 'dd/MM/yyyy HH:mm')}">05/11/2026 17:00</strong></td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted ps-0">Thời điểm bàn giao thực tế:</td>
@@ -177,7 +152,6 @@
                     </div>
                 </div>
 
-                <!-- Right: Associated Equipment Info & Lab Feedback -->
                 <div class="col-lg-6">
                     <div class="card p-4 shadow-sm h-100">
                         <h5 class="fw-bold text-secondary mb-3 border-bottom pb-2">
@@ -212,7 +186,6 @@
                             <i class="fas fa-external-link-alt me-1"></i> Xem Chi Tiết Thông Số Thiết Bị
                         </a>
 
-                        <!-- Staff Feedback & Approval Notes -->
                         <h6 class="fw-bold text-secondary border-top pt-3 mb-2">
                             <i class="fas fa-user-tie me-1 text-primary"></i> Phản Hồi Từ Quản Lý Phòng Lab
                         </h6>
@@ -232,7 +205,6 @@
             </div>
         </div>
 
-        <!-- Popup Modal Xác Nhận Hủy Phiếu Mượn (UC-EM-07) -->
         <div th:if="${loan.isCancellable()}"
              class="modal fade"
              id="cancelDetailModal"
@@ -243,14 +215,12 @@
                 <div class="modal-content">
                     <form th:action="@{/student/loans/cancel}" method="post">
                         <input type="hidden" name="loanId" th:value="${loan.id}">
-
                         <div class="modal-header bg-danger-subtle text-danger">
                             <h5 class="modal-title fw-bold" id="cancelDetailModalLabel">
                                 <i class="fas fa-exclamation-triangle me-2"></i>Xác Nhận Hủy Phiếu Mượn
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-
                         <div class="modal-body">
                             <p class="mb-2">
                                 Bạn có chắc chắn muốn hủy phiếu mượn <strong class="text-primary" th:text="${loan.requestCode}">LR-20261102-1001</strong>
@@ -260,14 +230,12 @@
                                 <i class="fas fa-info-circle me-1"></i>
                                 Lưu ý: Phiếu mượn sau khi hủy sẽ chuyển sang trạng thái <strong>Đã hủy</strong> và không thể khôi phục lại.
                             </div>
-
                             <div class="mb-3">
                                 <label class="form-label fw-semibold small">Vui lòng cung cấp lý do hủy phiếu <span class="text-danger">*</span></label>
                                 <textarea name="cancelReason" rows="3" class="form-control"
                                           placeholder="Ví dụ: Thay đổi kế hoạch học tập, không còn nhu cầu mượn thiết bị này..." required></textarea>
                             </div>
                         </div>
-
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                             <button type="submit" class="btn btn-danger">
@@ -279,8 +247,6 @@
             </div>
         </div>
     </main>
-
-    <!-- Footer -->
     <footer th:replace="~{fragments/layout :: footer}"></footer>
     <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>

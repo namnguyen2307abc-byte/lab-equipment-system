@@ -1,12 +1,12 @@
 package com.lab.lab_equipment_system.entity;
 
 public enum LoanStatus {
-    PENDING("Chờ duyệt", "badge bg-warning text-dark"),
-    APPROVED("Đã duyệt", "badge bg-info text-dark"),
-    HANDED_OVER("Đã bàn giao", "badge bg-primary"),
-    RETURNED("Đã trả", "badge bg-success"),
-    REJECTED("Từ chối", "badge bg-danger"),
-    CANCELLED("Đã hủy", "badge bg-secondary");
+    PENDING("Ch\u1edd duy\u1ec7t", "badge bg-warning text-dark"),
+    APPROVED("\u0110\u00e3 duy\u1ec7t", "badge bg-info text-dark"),
+    HANDED_OVER("\u0110\u00e3 b\u00e0n giao", "badge bg-primary"),
+    RETURNED("\u0110\u00e3 tr\u1ea3", "badge bg-success"),
+    REJECTED("T\u1eeb ch\u1ed1i", "badge bg-danger"),
+    CANCELLED("\u0110\u00e3 h\u1ee7y", "badge bg-secondary");
 
     private final String displayName;
     private final String badgeClass;

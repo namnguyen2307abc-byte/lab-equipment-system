@@ -1,6 +1,7 @@
 package com.lab.lab_equipment_system.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,15 +13,17 @@ public class Device {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String code; // ARD-001, ESP-001, RPI-001
+    private String code;
 
-    @Column(nullable = false, length = 150)
+    @Nationalized
+    @Column(nullable = false, columnDefinition = "NVARCHAR(150)")
     private String name;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Nationalized
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String specifications;
 
@@ -31,7 +34,8 @@ public class Device {
     @Column(name = "image_url", length = 300)
     private String imageUrl;
 
-    @Column(length = 100)
+    @Nationalized
+    @Column(columnDefinition = "NVARCHAR(100)")
     private String location;
 
     @Column(name = "created_at")

@@ -1,6 +1,7 @@
 package com.lab.lab_equipment_system.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 
 @Entity
 @Table(name = "categories")
@@ -10,10 +11,12 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Nationalized
+    @Column(nullable = false, unique = true, columnDefinition = "NVARCHAR(100)")
     private String name;
 
-    @Column(length = 500)
+    @Nationalized
+    @Column(columnDefinition = "NVARCHAR(500)")
     private String description;
 
     public Category() {
