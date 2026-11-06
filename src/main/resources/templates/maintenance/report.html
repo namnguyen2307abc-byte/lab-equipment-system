@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head><title>Báo hỏng thiết bị</title></head><body>
+<main id="main-content" class="page-content maintenance-content" tabindex="-1">
+    <a class="maintenance-back" th:href="@{/maintenance}">← Danh sách phiếu bảo trì</a>
+    <div class="page-heading"><div><p class="eyebrow">GỬI THÔNG TIN SỰ CỐ</p><h1>Báo hỏng thiết bị</h1><p class="page-description">Mô tả vấn đề để nhân viên phòng lab hỗ trợ bạn.</p></div></div>
+    <div class="maintenance-form-grid"><section class="panel maintenance-form-panel">
+        <form method="post" th:action="@{/maintenance/report}" th:object="${reportForm}">
+            <div class="form-field"><label for="loan">Thiết bị đang mượn <span>*</span></label><select id="loan" th:field="*{loanRequestId}" required th:attr="aria-invalid=${#fields.hasErrors('loanRequestId')}"><option value="">Chọn phiếu mượn và thiết bị</option><option th:each="l : ${loanOptions}" th:value="${l.id}" th:text="${'#' + l.id + ' · ' + l.equipmentCode + ' — ' + l.equipmentName}"></option></select><p class="field-error" th:if="${#fields.hasErrors('loanRequestId')}" th:errors="*{loanRequestId}"></p><small>Chỉ hiển thị thiết bị bạn đang mượn và chưa có phiếu bảo trì đang mở.</small></div>
+            <div class="form-field"><label for="description">Mô tả sự cố <span>*</span></label><textarea id="description" th:field="*{description}" rows="7" minlength="10" maxlength="1000" required placeholder="Thiết bị gặp vấn đề gì? Vấn đề xuất hiện khi nào?" data-character-count th:attr="aria-invalid=${#fields.hasErrors('description')}"></textarea><div class="field-help-row"><small>Từ 10 đến 1000 ký tự.</small><small data-character-output aria-live="polite"></small></div><p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p></div>
+            <div th:if="${#lists.isEmpty(loanOptions)}" class="maintenance-alert warning-alert">Không có thiết bị đủ điều kiện báo hỏng. Nếu đã báo trước đó, bạn có thể theo dõi phiếu trong danh sách.</div>
+            <div class="form-actions"><a class="button button-secondary" th:href="@{/maintenance}">Quay lại</a><button class="button button-primary" type="submit" th:disabled="${#lists.isEmpty(loanOptions)}">Gửi báo hỏng <svg class="icon"><use href="#icon-arrow"/></svg></button></div>
+        </form>
+    </section><aside class="panel maintenance-help-panel"><span class="help-icon"><svg class="icon"><use href="#icon-maintenance"/></svg></span><h2>Một mô tả rõ ràng,<br>xử lý nhanh hơn.</h2><ol><li>Ghi biểu hiện lỗi và thời điểm xảy ra.</li><li>Không tiếp tục dùng thiết bị nếu có dấu hiệu mất an toàn.</li><li>Theo dõi phản hồi của nhân viên trong chi tiết phiếu.</li></ol><p>Gửi báo hỏng không thay thế việc bàn giao trả thiết bị.</p></aside></div>
+</main></body></html>

@@ -14,9 +14,13 @@
         </nav>
     </div>
     <div class="header-end">
-        <span class="preview-badge">Bản xem mẫu</span>
+        <span class="preview-badge" th:if="${maintenanceUser == null}">Bản xem mẫu</span>
         <span class="header-separator"></span>
-        <div class="profile-preview" aria-label="Vai trò minh họa: nhân viên phòng lab">
+        <div class="profile-preview" th:if="${maintenanceUser != null}">
+            <span class="avatar" th:text="${maintenanceUser.staff ? 'NV' : 'SV'}"></span>
+            <span class="profile-label"><strong th:text="${maintenanceUser.name}"></strong><span th:text="${maintenanceUser.role.label}"></span></span>
+        </div>
+        <div class="profile-preview" th:if="${maintenanceUser == null}" aria-label="Vai trò minh họa: nhân viên phòng lab">
             <span class="avatar">NV</span>
             <span class="profile-label"><strong>Nhân viên</strong><span>Phòng thí nghiệm</span></span>
         </div>
