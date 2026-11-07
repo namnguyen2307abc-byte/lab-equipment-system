@@ -2,8 +2,11 @@ package com.lab.lab_equipment_system.service;
 
 import com.lab.lab_equipment_system.dto.CancelLoanRequestDto;
 import com.lab.lab_equipment_system.dto.CreateLoanRequestDto;
-import com.lab.lab_equipment_system.entity.*;
+import com.lab.lab_equipment_system.shared.entity.*;
+import com.lab.lab_equipment_system.shared.enums.*;
 import com.lab.lab_equipment_system.repository.*;
+import com.lab.lab_equipment_system.dto.*;
+import com.lab.lab_equipment_system.mapper.StudentDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,9 @@ import static org.mockito.Mockito.*;
 class StudentLoanServiceTests {
 
     @Mock
+    private UserRepository userRepository;
+
+    @Mock
     private DeviceRepository deviceRepository;
 
     @Mock
@@ -40,32 +46,33 @@ class StudentLoanServiceTests {
 
     private User mockStudent;
     private Category mockCategory;
-    private Device mockDevice;
+    private Equipment mockDevice;
 
     @BeforeEach
     void setUp() {
-        mockStudent = new User("student", "123456", "Nguyễn Văn Ngọc", "ngoc@fpt.edu.vn", "0912345678", Role.STUDENT);
+        mockStudent = new User("student", "123456", "Nguyễn Văn Ngọc", "ngoc@fpt.edu.vn", "0912345678", UserRole.STUDENT);
         mockStudent.setId(1L);
+        lenient().when(userRepository.findById(1L)).thenReturn(Optional.of(mockStudent));
 
         mockCategory = new Category("Vi điều khiển", "Các loại vi điều khiển");
         mockCategory.setId(10L);
 
-        mockDevice = new Device("ARD-001", "Kit Arduino Uno R3", mockCategory, "Chip ATmega328P", DeviceStatus.AVAILABLE, null, "Tủ A1");
+        mockDevice = new Equipment("ARD-001", "Kit Arduino Uno R3", mockCategory, "Chip ATmega328P", EquipmentStatus.AVAILABLE, null, "Tủ A1");
         mockDevice.setId(100L);
     }
 
     @Test
     @DisplayName("UC-EM-01: Tìm kiếm thiết bị theo từ khóa và danh mục")
     void testSearchEquipment() {
-        when(deviceRepository.searchDevices("Arduino", 10L, DeviceStatus.AVAILABLE))
+        when(deviceRepository.searchDevices("Arduino", 10L, EquipmentStatus.AVAILABLE))
                 .thenReturn(List.of(mockDevice));
 
-        List<Device> result = studentLoanService.searchEquipment("Arduino", 10L, DeviceStatus.AVAILABLE);
+        List<StudentEquipmentResponse> result = studentLoanService.searchEquipment("Arduino", 10L, EquipmentStatus.AVAILABLE);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("ARD-001", result.get(0).getCode());
-        verify(deviceRepository, times(1)).searchDevices("Arduino", 10L, DeviceStatus.AVAILABLE);
+        verify(deviceRepository, times(1)).searchDevices("Arduino", 10L, EquipmentStatus.AVAILABLE);
     }
 
     @Test
@@ -73,11 +80,11 @@ class StudentLoanServiceTests {
     void testGetDeviceDetails() {
         when(deviceRepository.findById(100L)).thenReturn(Optional.of(mockDevice));
 
-        Device found = studentLoanService.getDeviceDetails(100L);
+        StudentEquipmentResponse found = studentLoanService.getDeviceDetails(100L);
 
         assertNotNull(found);
         assertEquals("Kit Arduino Uno R3", found.getName());
-        assertEquals(DeviceStatus.AVAILABLE, found.getStatus());
+        assertEquals(EquipmentStatus.AVAILABLE, found.getStatus());
     }
 
     @Test
@@ -97,12 +104,12 @@ class StudentLoanServiceTests {
                 "Mượn kèm cáp USB"
         );
 
-        LoanRequest created = studentLoanService.createLoanRequest(mockStudent, dto);
+        StudentLoanResponse created = studentLoanService.createLoanRequest(StudentDtoMapper.toUserResponse(mockStudent), dto);
 
         assertNotNull(created);
         assertEquals(LoanStatus.PENDING, created.getStatus());
-        assertEquals(mockStudent, created.getStudent());
-        assertEquals(mockDevice, created.getDevice());
+        assertEquals(mockStudent.getId(), created.getStudent().getId());
+        assertEquals(mockDevice.getId(), created.getEquipment().getId());
         assertTrue(created.getRequestCode().startsWith("LR-"));
 
         verify(loanNotificationRepository, times(1)).save(any(LoanNotification.class));
@@ -111,7 +118,7 @@ class StudentLoanServiceTests {
     @Test
     @DisplayName("UC-EM-03: Báo lỗi khi mượn thiết bị không khả dụng")
     void testCreateLoanRequestNotAvailable() {
-        mockDevice.setStatus(DeviceStatus.BORROWED);
+        mockDevice.setStatus(EquipmentStatus.ON_LOAN);
         when(deviceRepository.findById(100L)).thenReturn(Optional.of(mockDevice));
 
         CreateLoanRequestDto dto = new CreateLoanRequestDto(
@@ -121,7 +128,7 @@ class StudentLoanServiceTests {
                 ""
         );
 
-        assertThrows(IllegalStateException.class, () -> studentLoanService.createLoanRequest(mockStudent, dto));
+        assertThrows(IllegalStateException.class, () -> studentLoanService.createLoanRequest(StudentDtoMapper.toUserResponse(mockStudent), dto));
         verify(loanRequestRepository, never()).save(any());
     }
 
@@ -132,7 +139,7 @@ class StudentLoanServiceTests {
         when(loanRequestRepository.findByStudentIdAndStatus(1L, LoanStatus.PENDING))
                 .thenReturn(List.of(loan));
 
-        List<LoanRequest> loans = studentLoanService.getPersonalLoanRequests(mockStudent, LoanStatus.PENDING);
+        List<StudentLoanResponse> loans = studentLoanService.getPersonalLoanRequests(StudentDtoMapper.toUserResponse(mockStudent), LoanStatus.PENDING);
 
         assertEquals(1, loans.size());
         assertEquals("LR-001", loans.get(0).getRequestCode());
@@ -145,7 +152,7 @@ class StudentLoanServiceTests {
         loan.setId(50L);
         when(loanRequestRepository.findById(50L)).thenReturn(Optional.of(loan));
 
-        LoanRequest details = studentLoanService.getLoanRequestDetails(50L, mockStudent);
+        StudentLoanResponse details = studentLoanService.getLoanRequestDetails(50L, StudentDtoMapper.toUserResponse(mockStudent));
 
         assertNotNull(details);
         assertEquals(50L, details.getId());
@@ -158,12 +165,12 @@ class StudentLoanServiceTests {
         loan.setId(50L);
         loan.setStatus(LoanStatus.PENDING);
 
-        when(loanRequestRepository.findById(50L)).thenReturn(Optional.of(loan));
+        when(loanRequestRepository.findByIdForUpdate(50L)).thenReturn(Optional.of(loan));
         when(loanRequestRepository.save(any(LoanRequest.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         CancelLoanRequestDto cancelDto = new CancelLoanRequestDto(50L, "Thay đổi kế hoạch học tập");
 
-        LoanRequest cancelled = studentLoanService.cancelLoanRequest(mockStudent, cancelDto);
+        StudentLoanResponse cancelled = studentLoanService.cancelLoanRequest(StudentDtoMapper.toUserResponse(mockStudent), cancelDto);
 
         assertEquals(LoanStatus.CANCELLED, cancelled.getStatus());
         assertEquals("Thay đổi kế hoạch học tập", cancelled.getCancelReason());
@@ -178,11 +185,11 @@ class StudentLoanServiceTests {
         loan.setId(50L);
         loan.setStatus(LoanStatus.APPROVED);
 
-        when(loanRequestRepository.findById(50L)).thenReturn(Optional.of(loan));
+        when(loanRequestRepository.findByIdForUpdate(50L)).thenReturn(Optional.of(loan));
 
         CancelLoanRequestDto cancelDto = new CancelLoanRequestDto(50L, "Lý do hủy");
 
-        assertThrows(IllegalStateException.class, () -> studentLoanService.cancelLoanRequest(mockStudent, cancelDto));
+        assertThrows(IllegalStateException.class, () -> studentLoanService.cancelLoanRequest(StudentDtoMapper.toUserResponse(mockStudent), cancelDto));
         verify(loanRequestRepository, never()).save(any());
     }
 
@@ -197,11 +204,11 @@ class StudentLoanServiceTests {
         when(loanNotificationRepository.countByStudentIdAndReadFalse(1L)).thenReturn(1L);
         when(loanNotificationRepository.findById(101L)).thenReturn(Optional.of(notif));
 
-        List<LoanNotification> list = studentLoanService.getStudentNotifications(mockStudent);
+        List<StudentNotificationResponse> list = studentLoanService.getStudentNotifications(StudentDtoMapper.toUserResponse(mockStudent));
         assertEquals(1, list.size());
-        assertEquals(1L, studentLoanService.getUnreadNotificationCount(mockStudent));
+        assertEquals(1L, studentLoanService.getUnreadNotificationCount(StudentDtoMapper.toUserResponse(mockStudent)));
 
-        studentLoanService.markNotificationAsRead(101L, mockStudent);
+        studentLoanService.markNotificationAsRead(101L, StudentDtoMapper.toUserResponse(mockStudent));
         assertTrue(notif.isRead());
         verify(loanNotificationRepository, times(1)).save(notif);
     }

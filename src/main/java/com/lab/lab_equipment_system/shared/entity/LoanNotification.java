@@ -1,6 +1,7 @@
-package com.lab.lab_equipment_system.entity;
+package com.lab.lab_equipment_system.shared.entity;
 
 import jakarta.persistence.*;
+import com.lab.lab_equipment_system.shared.enums.NotificationType;
 import org.hibernate.annotations.Nationalized;
 import java.time.LocalDateTime;
 

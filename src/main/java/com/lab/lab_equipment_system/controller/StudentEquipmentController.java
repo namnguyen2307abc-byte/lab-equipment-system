@@ -1,9 +1,8 @@
 package com.lab.lab_equipment_system.controller;
 
-import com.lab.lab_equipment_system.entity.Device;
-import com.lab.lab_equipment_system.entity.DeviceStatus;
-import com.lab.lab_equipment_system.entity.User;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import com.lab.lab_equipment_system.service.StudentLoanService;
+import com.lab.lab_equipment_system.dto.*;
 import com.lab.lab_equipment_system.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,14 +24,15 @@ public class StudentEquipmentController {
     }
 
     @ModelAttribute("currentUser")
-    public User getCurrentUser() {
+    public UserResponse getCurrentUser() {
         return userService.getCurrentUser();
     }
 
     @ModelAttribute("unreadNotificationCount")
     public long getUnreadNotificationCount() {
-        User user = userService.getCurrentUser();
-        return (user != null) ? studentLoanService.getUnreadNotificationCount(user) : 0;
+        UserResponse user = userService.getCurrentUser();
+        return (user != null && user.getRole() == com.lab.lab_equipment_system.shared.enums.UserRole.STUDENT)
+            ? studentLoanService.getUnreadNotificationCount(user) : 0;
     }
 
     /**
@@ -41,20 +41,20 @@ public class StudentEquipmentController {
     @GetMapping
     public String searchCatalog(@RequestParam(value = "keyword", required = false) String keyword,
                                 @RequestParam(value = "categoryId", required = false) Long categoryId,
-                                @RequestParam(value = "status", required = false) DeviceStatus status,
+                                @RequestParam(value = "status", required = false) EquipmentStatus status,
                                 Model model) {
-        List<Device> devices = studentLoanService.searchEquipment(keyword, categoryId, status);
-        List<Device> allDevices = studentLoanService.searchEquipment(null, null, null);
+        List<StudentEquipmentResponse> devices = studentLoanService.searchEquipment(keyword, categoryId, status);
+        List<StudentEquipmentResponse> allDevices = studentLoanService.searchEquipment(null, null, null);
 
-        long availableCount = allDevices.stream().filter(d -> d.getStatus() == DeviceStatus.AVAILABLE).count();
-        long borrowedCount = allDevices.stream().filter(d -> d.getStatus() == DeviceStatus.BORROWED).count();
-        long maintenanceCount = allDevices.stream().filter(d -> d.getStatus() == DeviceStatus.MAINTENANCE).count();
+        long availableCount = allDevices.stream().filter(d -> d.getStatus() == EquipmentStatus.AVAILABLE).count();
+        long borrowedCount = allDevices.stream().filter(d -> d.getStatus() == EquipmentStatus.ON_LOAN).count();
+        long maintenanceCount = allDevices.stream().filter(d -> d.getStatus() == EquipmentStatus.UNDER_MAINTENANCE).count();
 
         model.addAttribute("pageTitle", "Danh mục thiết bị");
         model.addAttribute("activeMenu", "equipment");
         model.addAttribute("devices", devices);
         model.addAttribute("categories", studentLoanService.getAllCategories());
-        model.addAttribute("statuses", DeviceStatus.values());
+        model.addAttribute("statuses", EquipmentStatus.values());
         model.addAttribute("selectedKeyword", keyword);
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("selectedStatus", status);
@@ -72,7 +72,7 @@ public class StudentEquipmentController {
      */
     @GetMapping("/{id}")
     public String viewEquipmentDetail(@PathVariable("id") Long id, Model model) {
-        Device device = studentLoanService.getDeviceDetails(id);
+        StudentEquipmentResponse device = studentLoanService.getDeviceDetails(id);
         model.addAttribute("pageTitle", "Chi tiết thiết bị: " + device.getName());
         model.addAttribute("activeMenu", "equipment");
         model.addAttribute("device", device);

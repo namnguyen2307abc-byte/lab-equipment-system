@@ -95,11 +95,11 @@
                     <tr th:each="loan : ${loans}">
                         <td>
                             <a class="ticket-code" th:href="@{/student/loans/{id}(id=${loan.id})}" th:text="${loan.requestCode}">REQ-000</a>
-                            <small style="display:block; color:#8c95a0; font-size:10px;" th:text="${#temporals.format(loan.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
+                            <small style="display:block; color:#8c95a0; font-size:10px;" th:text="${#temporals.format(loan.requestedAt, 'dd/MM/yyyy HH:mm')}"></small>
                         </td>
                         <td>
-                            <strong th:text="${loan.device != null ? loan.device.name : 'Thiết bị'}">Tên thiết bị</strong>
-                            <small style="display:block; color:#8c95a0; font-size:11px;" th:text="${loan.device != null ? loan.device.code + ' · ' + loan.device.location : ''}"></small>
+                            <strong th:text="${loan.equipment != null ? loan.equipment.name : 'Thiết bị'}">Tên thiết bị</strong>
+                            <small style="display:block; color:#8c95a0; font-size:11px;" th:text="${loan.equipment != null ? loan.equipment.code + ' · ' + loan.equipment.location : ''}"></small>
                         </td>
                         <td>
                             <span th:text="${#temporals.format(loan.borrowDate, 'dd/MM/yyyy HH:mm')}">--</span>

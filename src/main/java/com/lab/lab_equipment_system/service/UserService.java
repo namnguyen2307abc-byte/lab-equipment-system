@@ -1,7 +1,10 @@
 package com.lab.lab_equipment_system.service;
 
-import com.lab.lab_equipment_system.entity.User;
+import com.lab.lab_equipment_system.shared.entity.User;
+import com.lab.lab_equipment_system.dto.UserResponse;
+import com.lab.lab_equipment_system.mapper.StudentDtoMapper;
 import com.lab.lab_equipment_system.repository.UserRepository;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,42 +12,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
-
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserRepository users;
+    public UserService(UserRepository users) { this.users = users; }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng: " + username));
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.isEnabled(),
-                true, true, true,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
-        );
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        User user = findLogin(login);
+        if (user == null) throw new UsernameNotFoundException("Không tìm thấy người dùng.");
+        return new org.springframework.security.core.userdetails.User(user.getUsername() == null ? user.getEmail() : user.getUsername(),
+            user.getPasswordHash(), user.isActive(), true, true, true,
+            List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
     }
 
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() && !authentication.getName().equals("anonymousUser")) {
-            Optional<User> userOpt = userRepository.findByUsername(authentication.getName());
-            if (userOpt.isPresent()) {
-                return userOpt.get();
-            }
-        }
-        return userRepository.findByUsername("student")
-                .orElseGet(() -> userRepository.findAll().stream().findFirst().orElse(null));
+    public UserResponse getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) return null;
+        User user = findLogin(auth.getName());
+        return user != null && user.isActive() ? StudentDtoMapper.toUserResponse(user) : null;
+    }
+
+    private User findLogin(String login) {
+        return users.findByUsernameIgnoreCase(login).or(() -> users.findByEmailIgnoreCase(login)).orElse(null);
     }
 }

@@ -76,12 +76,12 @@
     <form th:action="@{/login}" method="post">
         <div class="form-field">
             <label for="username">Tên đăng nhập</label>
-            <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập (VD: sinhvien)" required autofocus>
+            <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập hoặc email" required autofocus>
         </div>
 
         <div class="form-field" style="margin-bottom: 26px;">
             <label for="password">Mật khẩu</label>
-            <input type="password" id="password" name="password" placeholder="Nhập mật khẩu (VD: 123456)" required>
+            <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
         </div>
 
         <button type="submit" class="button button-primary" style="width: 100%; min-height: 44px; font-size: 13px;">
@@ -89,21 +89,9 @@
         </button>
     </form>
 
-    <div style="margin-top: 26px; padding-top: 20px; border-top: 1px solid #edf0f3; text-align: center;">
-        <span style="display: block; font-size: 11px; color: #8490a0; margin-bottom: 8px;">Tài khoản thử nghiệm nhanh (click để điền):</span>
-        <div>
-            <span class="demo-account-chip" onclick="fillDemo('sinhvien', '123456')">Sinh viên: <strong>sinhvien</strong></span>
-            <span class="demo-account-chip" onclick="fillDemo('student', '123456')">Sinh viên: <strong>student</strong></span>
-            <span class="demo-account-chip" onclick="fillDemo('admin', '123456')">Quản trị viên: <strong>admin</strong></span>
-        </div>
-    </div>
+
 </div>
 
-<script>
-    function fillDemo(username, password) {
-        document.getElementById('username').value = username;
-        document.getElementById('password').value = password;
-    }
-</script>
+
 </body>
 </html>

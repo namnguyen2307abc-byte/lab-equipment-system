@@ -109,7 +109,7 @@
                 <div>
                     <dt>Thiết bị đăng ký</dt>
                     <dd>
-                        <a th:if="${loan.device != null}" class="ticket-code" th:href="@{/student/equipment/{id}(id=${loan.device.id})}" th:text="${loan.device.name + ' (' + loan.device.code + ')'}">Thiết bị</a>
+                        <a th:if="${loan.equipment != null}" class="ticket-code" th:href="@{/student/equipment/{id}(id=${loan.equipment.id})}" th:text="${loan.equipment.name + ' (' + loan.equipment.code + ')'}">Thiết bị</a>
                     </dd>
                 </div>
                 <div>
@@ -118,7 +118,7 @@
                 </div>
                 <div>
                     <dt>Ngày gửi yêu cầu</dt>
-                    <dd th:text="${#temporals.format(loan.createdAt, 'dd/MM/yyyy HH:mm')}">--</dd>
+                    <dd th:text="${#temporals.format(loan.requestedAt, 'dd/MM/yyyy HH:mm')}">--</dd>
                 </div>
                 <div>
                     <dt>Thời gian mượn</dt>
@@ -134,7 +134,7 @@
                 </div>
                 <div>
                     <dt>Vị trí nhận thiết bị</dt>
-                    <dd th:text="${loan.device != null ? loan.device.location : 'Phòng Lab'}">Phòng Lab</dd>
+                    <dd th:text="${loan.equipment != null ? loan.equipment.location : 'Phòng Lab'}">Phòng Lab</dd>
                 </div>
             </dl>
 
@@ -185,7 +185,7 @@
                     <svg class="icon"><use href="#icon-check"/></svg>
                     <div>
                         <strong>Yêu cầu đã được phê duyệt!</strong>
-                        <p style="margin-top: 4px; font-size: 12px;">Vui lòng mang theo Thẻ Sinh Viên đến phòng Lab (<span th:text="${loan.device != null ? loan.device.location : 'Lab'}"></span>) để nhận thiết bị.</p>
+                        <p style="margin-top: 4px; font-size: 12px;">Vui lòng mang theo Thẻ Sinh Viên đến phòng Lab (<span th:text="${loan.equipment != null ? loan.equipment.location : 'Lab'}"></span>) để nhận thiết bị.</p>
                     </div>
                 </div>
 
@@ -218,6 +218,9 @@
         </aside>
     </div>
 
+    <a class="button button-secondary" th:if="${loan.status.name() == 'BORROWED' or loan.status.name() == 'RETURN_REQUESTED'}"
+       th:href="@{/maintenance/report(loanRequestId=${loan.id})}" style="margin-top: 18px;">Báo hỏng thiết bị đang mượn</a>
+
     <!-- Modal Popup Hủy Phiếu Mượn (UC-EM-07) -->
     <div id="cancelModal" class="student-modal-overlay" style="display: none;" th:if="${loan.status.name() == 'PENDING'}">
         <div class="student-modal-card">
@@ -247,8 +250,6 @@
             </form>
         </div>
     </div>
-</main>
-
 <script th:if="${loan.status.name() == 'PENDING'}">
     function openCancelModal() {
         document.getElementById('cancelModal').style.display = 'flex';
@@ -261,5 +262,8 @@
         if (e.target === modal) closeCancelModal();
     });
 </script>
+</main>
+
+
 </body>
 </html>

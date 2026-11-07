@@ -278,7 +278,7 @@
 /* Status thiết bị */
 .status-AVAILABLE { background: #edf7e8; color: #437a34; }
 .status-IN_USE { background: #eaf1fa; color: #32649b; }
-.status-MAINTENANCE { background: #fdf2e4; color: #a36520; }
+.status-UNDER_MAINTENANCE { background: #fdf2e4; color: #a36520; }
 .status-DISPOSED { background: #fbeae9; color: #a43a32; }
 
 /* Status phiếu mượn */
@@ -577,3 +577,5 @@
         padding: 18px 20px;
     }
 }
+
+.status-ON_LOAN { background: #eaf0fb; color: #426aab; }

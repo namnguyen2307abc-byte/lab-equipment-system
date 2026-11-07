@@ -1,6 +1,6 @@
 package com.lab.lab_equipment_system.repository;
 
-import com.lab.lab_equipment_system.entity.Category;
+import com.lab.lab_equipment_system.shared.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

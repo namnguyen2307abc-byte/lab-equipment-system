@@ -28,7 +28,8 @@ public class MaintenanceIdentityServiceImpl implements MaintenanceIdentityServic
                 || authentication instanceof AnonymousAuthenticationToken) {
             throw new AccessDeniedException("Vui lòng đăng nhập để sử dụng chức năng bảo trì.");
         }
-        User user = users.findByEmailIgnoreCase(authentication.getName())
+        User user = users.findByUsernameIgnoreCase(authentication.getName())
+            .or(() -> users.findByEmailIgnoreCase(authentication.getName()))
             .orElseThrow(() -> new AccessDeniedException("Tài khoản đăng nhập chưa được liên kết với hồ sơ người dùng."));
         if (!user.isActive()) {
             throw new AccessDeniedException("Tài khoản đã bị ngừng hoạt động.");

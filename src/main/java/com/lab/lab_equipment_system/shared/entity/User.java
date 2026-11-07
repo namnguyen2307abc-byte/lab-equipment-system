@@ -28,6 +28,35 @@ public class User {
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
+    @Column(name = "username", length = 100, unique = true)
+    private String username;
+
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    public User() { }
+
+    public User(String username, String passwordHash, String fullName, String email, String phone, UserRole role) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
+        this.role = role;
+    }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

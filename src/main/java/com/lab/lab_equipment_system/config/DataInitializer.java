@@ -1,14 +1,19 @@
 package com.lab.lab_equipment_system.config;
 
-import com.lab.lab_equipment_system.entity.*;
+import com.lab.lab_equipment_system.shared.entity.*;
+import com.lab.lab_equipment_system.shared.enums.*;
+import com.lab.lab_equipment_system.shared.entity.Category;
 import com.lab.lab_equipment_system.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Component
+@ConditionalOnProperty(name = "app.seed-data", havingValue = "true")
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -33,6 +38,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         if (userRepository.count() > 0) {
             return;
@@ -42,11 +48,11 @@ public class DataInitializer implements CommandLineRunner {
 
         String defaultHashedPassword = passwordEncoder.encode("123456");
 
-        User student1 = new User("student", defaultHashedPassword, "Nguy\u1ec5n V\u0103n Ng\u1ecdc", "ngoc.nv@fpt.edu.vn", "0912345678", Role.STUDENT);
-        User studentVien = new User("sinhvien", defaultHashedPassword, "Nguy\u1ec5n V\u0103n Ng\u1ecdc", "sinhvien@fpt.edu.vn", "0912345678", Role.STUDENT);
-        User student2 = new User("student2", defaultHashedPassword, "Tr\u1ea7n Th\u1ecb Mai", "mai.tt@fpt.edu.vn", "0987654321", Role.STUDENT);
-        User staff = new User("staff", defaultHashedPassword, "L\u00ea Ho\u00e0ng H\u1ea3i", "hai.lh@fpt.edu.vn", "0901234567", Role.STAFF);
-        User admin = new User("admin", defaultHashedPassword, "Qu\u1ea3n Tr\u1ecb Vi\u00ean", "admin@fpt.edu.vn", "0999999999", Role.ADMIN);
+        User student1 = new User("student", defaultHashedPassword, "Nguy\u1ec5n V\u0103n Ng\u1ecdc", "ngoc.nv@fpt.edu.vn", "0912345678", UserRole.STUDENT);
+        User studentVien = new User("sinhvien", defaultHashedPassword, "Nguy\u1ec5n V\u0103n Ng\u1ecdc", "sinhvien@fpt.edu.vn", "0912345678", UserRole.STUDENT);
+        User student2 = new User("student2", defaultHashedPassword, "Tr\u1ea7n Th\u1ecb Mai", "mai.tt@fpt.edu.vn", "0987654321", UserRole.STUDENT);
+        User staff = new User("staff", defaultHashedPassword, "L\u00ea Ho\u00e0ng H\u1ea3i", "hai.lh@fpt.edu.vn", "0901234567", UserRole.STAFF);
+        User admin = new User("admin", defaultHashedPassword, "Qu\u1ea3n Tr\u1ecb Vi\u00ean", "admin@fpt.edu.vn", "0999999999", UserRole.ADMIN);
 
         userRepository.save(student1);
         userRepository.save(studentVien);
@@ -64,63 +70,63 @@ public class DataInitializer implements CommandLineRunner {
         categoryRepository.save(catMeasure);
         categoryRepository.save(catSensor);
 
-        Device dev1 = new Device("ARD-001", "Kit Arduino Uno R3", catMcu,
+        Equipment dev1 = new Equipment("ARD-001", "Kit Arduino Uno R3", catMcu,
                 "Vi \u0111i\u1ec1u khi\u1ec3n ATmega328P, 14 ch\u00e2n I/O k\u1ef9 thu\u1eadt s\u1ed1 (6 ch\u00e2n PWM), 6 ng\u00f5 v\u00e0o analog, th\u1ea1ch anh 16MHz, k\u1ebft n\u1ed1i USB chu\u1ea9n B.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400",
                 "T\u1ee7 A1 - K\u1ec7 1");
 
-        Device dev2 = new Device("ARD-002", "Kit Arduino Mega 2560 R3", catMcu,
+        Equipment dev2 = new Equipment("ARD-002", "Kit Arduino Mega 2560 R3", catMcu,
                 "Vi \u0111i\u1ec1u khi\u1ec3n ATmega2560, 54 ch\u00e2n I/O s\u1ed1, 16 ch\u00e2n ng\u00f5 v\u00e0o analog, 4 c\u1ed5ng UART ph\u1ea7n c\u1ee9ng, b\u1ed9 nh\u1edb Flash 256KB.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1608564697071-ddf911d81370?w=400",
                 "T\u1ee7 A1 - K\u1ec7 2");
 
-        Device dev3 = new Device("ESP-001", "NodeMCU ESP32-WROOM-32 DevKit V1", catMcu,
+        Equipment dev3 = new Equipment("ESP-001", "NodeMCU ESP32-WROOM-32 DevKit V1", catMcu,
                 "Vi \u0111i\u1ec1u khi\u1ec3n 32-bit l\u00f5i k\u00e9p Xtensa LX6 @ 240MHz, t\u00edch h\u1ee3p WiFi 802.11 b/g/n v\u00e0 Bluetooth v4.2 BR/EDR & BLE, 4MB Flash.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1517055729441-db3aab1359b0?w=400",
                 "T\u1ee7 A2 - K\u1ec7 1");
 
-        Device dev4 = new Device("ESP-002", "NodeMCU ESP8266 V3", catMcu,
+        Equipment dev4 = new Equipment("ESP-002", "NodeMCU ESP8266 V3", catMcu,
                 "Module ESP-12E, vi x\u1eed l\u00fd Tensilica L106 32-bit, WiFi 2.4GHz WPA/WPA2, 4MB Flash, h\u1ed7 tr\u1ee3 l\u1eadp tr\u00ecnh qua Arduino IDE.",
-                DeviceStatus.BORROWED,
+                EquipmentStatus.ON_LOAN,
                 "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400",
                 "T\u1ee7 A2 - K\u1ec7 2");
 
-        Device dev5 = new Device("RPI-001", "Raspberry Pi 4 Model B (4GB RAM)", catSbc,
+        Equipment dev5 = new Equipment("RPI-001", "Raspberry Pi 4 Model B (4GB RAM)", catSbc,
                 "CPU Broadcom BCM2711 l\u00f5i t\u1ee9 Cortex-A72 (ARM v8) 64-bit 1.5GHz, 4GB RAM LPDDR4, 2 c\u1ed5ng micro-HDMI xu\u1ea5t 4K60p, Gigabit Ethernet.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=400",
                 "T\u1ee7 B1 - K\u1ec7 1");
 
-        Device dev6 = new Device("RPI-002", "Raspberry Pi 5 (8GB RAM)", catSbc,
+        Equipment dev6 = new Equipment("RPI-002", "Raspberry Pi 5 (8GB RAM)", catSbc,
                 "CPU Broadcom BCM2712 l\u00f5i t\u1ee9 Arm Cortex-A76 @ 2.4GHz, 8GB RAM LPDDR4X, giao ti\u1ebfp PCIe 2.0, chip qu\u1ea3n l\u00fd ngu\u1ed3n RP1 chuy\u00ean bi\u1ec7t.",
-                DeviceStatus.MAINTENANCE,
+                EquipmentStatus.UNDER_MAINTENANCE,
                 "https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=400",
                 "Ph\u00f2ng K\u1ef9 thu\u1eadt b\u1ea3o tr\u00ec");
 
-        Device dev7 = new Device("DMM-001", "\u0110\u1ed3ng h\u1ed3 v\u1ea1n n\u0103ng s\u1ed1 Fluke 101", catMeasure,
+        Equipment dev7 = new Equipment("DMM-001", "\u0110\u1ed3ng h\u1ed3 v\u1ea1n n\u0103ng s\u1ed1 Fluke 101", catMeasure,
                 "\u0110o \u0111i\u1ec7n \u00e1p AC/DC t\u1edbi 600V, \u0111o \u0111i\u1ec7n tr\u1edf, ki\u1ec3m tra th\u00f4ng m\u1ea1ch, ti\u00eau chu\u1ea9n an to\u00e0n CAT III 600V, thi\u1ebft k\u1ebf nh\u1ecf g\u1ecdn b\u1ec1n b\u1ec9.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400",
                 "T\u1ee7 D1 - B\u00e0n th\u1ef1c h\u00e0nh s\u1ed1 3");
 
-        Device dev8 = new Device("OSC-001", "M\u00e1y hi\u1ec7n s\u00f3ng s\u1ed1 Rigol DS1054Z", catMeasure,
+        Equipment dev8 = new Equipment("OSC-001", "M\u00e1y hi\u1ec7n s\u00f3ng s\u1ed1 Rigol DS1054Z", catMeasure,
                 "B\u0103ng th\u00f4ng 50MHz, 4 k\u00eanh t\u01b0\u01a1ng t\u1ef1, t\u1ed1c \u0111\u1ed9 l\u1ea5y m\u1eabu c\u1ef1c \u0111\u1ea1i 1 GSa/s, b\u1ed9 nh\u1edb s\u00e2u 12 Mpts, m\u00e0n h\u00ecnh m\u00e0u LCD 7 inch hi\u1ec3n th\u1ecb s\u1eafc n\u00e9t.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=400",
                 "B\u00e0n ki\u1ec3m tra s\u1ed1 1 - Lab 302");
 
-        Device dev9 = new Device("SNS-001", "Module C\u1ea3m bi\u1ebfn nhi\u1ec7t \u0111\u1ed9 \u0111\u1ed9 \u1ea9m DHT22", catSensor,
+        Equipment dev9 = new Equipment("SNS-001", "Module C\u1ea3m bi\u1ebfn nhi\u1ec7t \u0111\u1ed9 \u0111\u1ed9 \u1ea9m DHT22", catSensor,
                 "D\u1ea3i nhi\u1ec7t \u0111\u1ed9: -40 \u0111\u1ebfn 80\u00b0C (sai s\u1ed1 \u00b10.5\u00b0C), d\u1ea3i \u0111\u1ed9 \u1ea9m: 0-100% RH (sai s\u1ed1 \u00b12%), t\u00edn hi\u1ec7u ra s\u1ed1 k\u1ef9 thu\u1eadt s\u1ed1 1 d\u00e2y (Single-bus).",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400",
                 "H\u1ed9p linh ki\u1ec7n C1");
 
-        Device dev10 = new Device("SNS-002", "Module GPS \u0111\u1ecbnh v\u1ecb v\u1ec7 tinh NEO-6M", catSensor,
+        Equipment dev10 = new Equipment("SNS-002", "Module GPS \u0111\u1ecbnh v\u1ecb v\u1ec7 tinh NEO-6M", catSensor,
                 "Chip vi x\u1eed l\u00fd u-blox 6, c\u00f3 anten g\u1ed1m \u0111\u1ed9 nh\u1ea1y cao, giao ti\u1ebfp UART Serial, t\u1ed1c \u0111\u1ed9 c\u1eadp nh\u1eadt v\u1ecb tr\u00ed 5Hz, c\u00f3 pin l\u01b0u c\u1ea5u h\u00ecnh RTC.",
-                DeviceStatus.AVAILABLE,
+                EquipmentStatus.AVAILABLE,
                 "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400",
                 "H\u1ed9p linh ki\u1ec7n C2");
 
@@ -167,8 +173,8 @@ public class DataInitializer implements CommandLineRunner {
                 "L\u00e0m \u0111\u1ec1 t\u00e0i nghi\u00ean c\u1ee9u h\u1ec7 th\u1ed1ng gi\u00e1m s\u00e1t m\u00f4i tr\u01b0\u1eddng th\u00f4ng minh",
                 "Sinh vi\u00ean \u0111\u00e3 ki\u1ec3m tra thi\u1ebft b\u1ecb ho\u1ea1t \u0111\u1ed9ng t\u1ed1t tr\u01b0\u1edbc khi nh\u1eadn"
         );
-        loan3.setStatus(LoanStatus.HANDED_OVER);
-        loan3.setHandoverAt(LocalDateTime.now().minusDays(5));
+        loan3.setStatus(LoanStatus.BORROWED);
+        loan3.setHandedOverAt(LocalDateTime.now().minusDays(5));
         loan3.setProcessedBy(staff);
         loanRequestRepository.save(loan3);
 
@@ -181,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
                 "\u0110\u00e3 ho\u00e0n tr\u1ea3 \u0111\u1ee7 ngu\u1ed3n v\u00e0 th\u1ebb nh\u1edb SD"
         );
         loan4.setStatus(LoanStatus.RETURNED);
-        loan4.setHandoverAt(LocalDateTime.now().minusDays(10));
+        loan4.setHandedOverAt(LocalDateTime.now().minusDays(10));
         loan4.setReturnedAt(LocalDateTime.now().minusDays(3));
         loan4.setProcessedBy(staff);
         loanRequestRepository.save(loan4);

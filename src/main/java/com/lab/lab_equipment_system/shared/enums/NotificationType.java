@@ -1,4 +1,4 @@
-package com.lab.lab_equipment_system.entity;
+package com.lab.lab_equipment_system.shared.enums;
 
 public enum NotificationType {
     APPROVAL("Ph\u00ea duy\u1ec7t phi\u1ebfu m\u01b0\u1ee3n", "fas fa-check-circle text-success"),

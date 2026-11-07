@@ -1,8 +1,12 @@
 package com.lab.lab_equipment_system.service;
 
-import com.lab.lab_equipment_system.dto.CancelLoanRequestDto;
+import com.lab.lab_equipment_system.shared.entity.Category;
+
+import com.lab.lab_equipment_system.dto.*;
+import com.lab.lab_equipment_system.mapper.StudentDtoMapper;
 import com.lab.lab_equipment_system.dto.CreateLoanRequestDto;
-import com.lab.lab_equipment_system.entity.*;
+import com.lab.lab_equipment_system.shared.entity.*;
+import com.lab.lab_equipment_system.shared.enums.*;
 import com.lab.lab_equipment_system.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,21 +14,23 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.UUID;
 
 @Service
 @Transactional
 public class StudentLoanServiceImpl implements StudentLoanService {
 
+    private final UserRepository userRepository;
     private final DeviceRepository deviceRepository;
     private final CategoryRepository categoryRepository;
     private final LoanRequestRepository loanRequestRepository;
     private final LoanNotificationRepository loanNotificationRepository;
 
-    public StudentLoanServiceImpl(DeviceRepository deviceRepository,
+    public StudentLoanServiceImpl(UserRepository userRepository, DeviceRepository deviceRepository,
                                   CategoryRepository categoryRepository,
                                   LoanRequestRepository loanRequestRepository,
                                   LoanNotificationRepository loanNotificationRepository) {
+        this.userRepository = userRepository;
         this.deviceRepository = deviceRepository;
         this.categoryRepository = categoryRepository;
         this.loanRequestRepository = loanRequestRepository;
@@ -33,39 +39,45 @@ public class StudentLoanServiceImpl implements StudentLoanService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Device> searchEquipment(String keyword, Long categoryId, DeviceStatus status) {
+    public List<StudentEquipmentResponse> searchEquipment(String keyword, Long categoryId, EquipmentStatus status) {
         String cleanKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
-        return deviceRepository.searchDevices(cleanKeyword, categoryId, status);
+        return deviceRepository.searchDevices(cleanKeyword, categoryId, status).stream()
+            .map(StudentDtoMapper::toStudentEquipmentResponse).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll().stream().map(StudentDtoMapper::toCategoryResponse).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Device getDeviceDetails(Long deviceId) {
-        return deviceRepository.findById(deviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Kh\u00f4ng t\u00ecm th\u1ea5y thi\u1ebft b\u1ecb v\u1edbi ID: " + deviceId));
+    public StudentEquipmentResponse getDeviceDetails(Long deviceId) {
+        Equipment equipment = deviceRepository.findById(deviceId)
+            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thiết bị: " + deviceId));
+        return StudentDtoMapper.toStudentEquipmentResponse(equipment);
     }
 
     @Override
-    public LoanRequest createLoanRequest(User student, CreateLoanRequestDto requestDto) {
-        Device device = getDeviceDetails(requestDto.getDeviceId());
+    public StudentLoanResponse createLoanRequest(UserResponse actor, CreateLoanRequestDto requestDto) {
+        User student = requireStudent(actor);
+        Equipment device = deviceRepository.findById(requestDto.getDeviceId())
+            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thiết bị."));
 
-        if (device.getStatus() != DeviceStatus.AVAILABLE) {
+        if (device.getStatus() != EquipmentStatus.AVAILABLE) {
             throw new IllegalStateException("Thi\u1ebft b\u1ecb '" + device.getName() + "' hi\u1ec7n kh\u00f4ng kh\u1ea3 d\u1ee5ng \u0111\u1ec3 m\u01b0\u1ee3n (Tr\u1ea1ng th\u00e1i: "
                     + device.getStatus().getDisplayName() + ").");
         }
 
-        if (requestDto.getDueAt() == null || !requestDto.getDueAt().isAfter(LocalDateTime.now())) {
+        if (requestDto.getBorrowDate() == null || requestDto.getDueAt() == null
+                || !requestDto.getDueAt().isAfter(LocalDateTime.now())
+                || !requestDto.getDueAt().isAfter(requestDto.getBorrowDate())) {
             throw new IllegalArgumentException("Th\u1eddi gian d\u1ef1 ki\u1ebfn tr\u1ea3 ph\u1ea3i sau th\u1eddi \u0111i\u1ec3m hi\u1ec7n t\u1ea1i.");
         }
 
         String datePrefix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        int randomSuffix = ThreadLocalRandom.current().nextInt(1000, 9999);
+        String randomSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
         String requestCode = "LR-" + datePrefix + "-" + randomSuffix;
 
         LoanRequest loanRequest = new LoanRequest(
@@ -93,18 +105,20 @@ public class StudentLoanServiceImpl implements StudentLoanService {
         );
         loanNotificationRepository.save(notification);
 
-        return savedRequest;
+        return StudentDtoMapper.toStudentLoanResponse(savedRequest);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<LoanRequest> getPersonalLoanRequests(User student, LoanStatus statusFilter) {
-        return loanRequestRepository.findByStudentIdAndStatus(student.getId(), statusFilter);
+    public List<StudentLoanResponse> getPersonalLoanRequests(UserResponse actor, LoanStatus statusFilter) {
+        return loanRequestRepository.findByStudentIdAndStatus(requireStudent(actor).getId(), statusFilter).stream()
+            .map(StudentDtoMapper::toStudentLoanResponse).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public LoanRequest getLoanRequestDetails(Long loanId, User student) {
+    public StudentLoanResponse getLoanRequestDetails(Long loanId, UserResponse actor) {
+        User student = requireStudent(actor);
         LoanRequest loanRequest = loanRequestRepository.findById(loanId)
                 .orElseThrow(() -> new IllegalArgumentException("Kh\u00f4ng t\u00ecm th\u1ea5y phi\u1ebfu m\u01b0\u1ee3n v\u1edbi ID: " + loanId));
 
@@ -112,12 +126,17 @@ public class StudentLoanServiceImpl implements StudentLoanService {
             throw new SecurityException("B\u1ea1n kh\u00f4ng c\u00f3 quy\u1ec1n truy c\u1eadp th\u00f4ng tin phi\u1ebfu m\u01b0\u1ee3n n\u00e0y.");
         }
 
-        return loanRequest;
+        return StudentDtoMapper.toStudentLoanResponse(loanRequest);
     }
 
     @Override
-    public LoanRequest cancelLoanRequest(User student, CancelLoanRequestDto cancelDto) {
-        LoanRequest loanRequest = getLoanRequestDetails(cancelDto.getLoanId(), student);
+    public StudentLoanResponse cancelLoanRequest(UserResponse actor, CancelLoanRequestDto cancelDto) {
+        User student = requireStudent(actor);
+        LoanRequest loanRequest = loanRequestRepository.findByIdForUpdate(cancelDto.getLoanId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy phiếu mượn."));
+        if (!loanRequest.getStudent().getId().equals(student.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException("Không được hủy phiếu của người khác.");
+        }
 
         if (loanRequest.getStatus() != LoanStatus.PENDING) {
             throw new IllegalStateException("Kh\u00f4ng th\u1ec3 h\u1ee7y phi\u1ebfu m\u01b0\u1ee3n. Ch\u1ec9 nh\u1eefng phi\u1ebfu \u0111ang \u1edf tr\u1ea1ng th\u00e1i 'Ch\u1edd duy\u1ec7t' (Pending) m\u1edbi c\u00f3 th\u1ec3 h\u1ee7y.");
@@ -130,7 +149,7 @@ public class StudentLoanServiceImpl implements StudentLoanService {
         LoanRequest updatedRequest = loanRequestRepository.save(loanRequest);
 
         String notifMsg = String.format("B\u1ea1n \u0111\u00e3 h\u1ee7y y\u00eau c\u1ea7u m\u01b0\u1ee3n thi\u1ebft b\u1ecb '%s' (M\u00e3 phi\u1ebfu: %s). L\u00fd do h\u1ee7y: %s",
-                loanRequest.getDevice().getName(), loanRequest.getRequestCode(), cancelDto.getCancelReason());
+                loanRequest.getEquipment().getName(), loanRequest.getRequestCode(), cancelDto.getCancelReason());
         LoanNotification notification = new LoanNotification(
                 student,
                 updatedRequest,
@@ -140,23 +159,27 @@ public class StudentLoanServiceImpl implements StudentLoanService {
         );
         loanNotificationRepository.save(notification);
 
-        return updatedRequest;
+        return StudentDtoMapper.toStudentLoanResponse(updatedRequest);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<LoanNotification> getStudentNotifications(User student) {
-        return loanNotificationRepository.findByStudentIdOrderByCreatedAtDesc(student.getId());
+    public List<StudentNotificationResponse> getStudentNotifications(UserResponse actor) {
+        User student = requireStudent(actor);
+        return loanNotificationRepository.findByStudentIdOrderByCreatedAtDesc(student.getId()).stream()
+            .map(StudentDtoMapper::toStudentNotificationResponse).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public long getUnreadNotificationCount(User student) {
+    public long getUnreadNotificationCount(UserResponse actor) {
+        User student = requireStudent(actor);
         return loanNotificationRepository.countByStudentIdAndReadFalse(student.getId());
     }
 
     @Override
-    public void markNotificationAsRead(Long notificationId, User student) {
+    public void markNotificationAsRead(Long notificationId, UserResponse actor) {
+        User student = requireStudent(actor);
         LoanNotification notification = loanNotificationRepository.findById(notificationId)
                 .orElseThrow(() -> new IllegalArgumentException("Kh\u00f4ng t\u00ecm th\u1ea5y th\u00f4ng b\u00e1o"));
 
@@ -167,11 +190,23 @@ public class StudentLoanServiceImpl implements StudentLoanService {
     }
 
     @Override
-    public void markAllNotificationsAsRead(User student) {
+    public void markAllNotificationsAsRead(UserResponse actor) {
+        User student = requireStudent(actor);
         List<LoanNotification> unreadList = loanNotificationRepository.findByStudentIdAndReadFalseOrderByCreatedAtDesc(student.getId());
         for (LoanNotification n : unreadList) {
             n.setRead(true);
         }
         loanNotificationRepository.saveAll(unreadList);
+    }
+    private User requireStudent(UserResponse actor) {
+        if (actor == null || actor.getId() == null) {
+            throw new org.springframework.security.access.AccessDeniedException("Vui lòng đăng nhập.");
+        }
+        User student = userRepository.findById(actor.getId())
+            .orElseThrow(() -> new org.springframework.security.access.AccessDeniedException("Không tìm thấy tài khoản."));
+        if (!student.isActive() || student.getRole() != UserRole.STUDENT) {
+            throw new org.springframework.security.access.AccessDeniedException("Chức năng dành cho sinh viên đang hoạt động.");
+        }
+        return student;
     }
 }

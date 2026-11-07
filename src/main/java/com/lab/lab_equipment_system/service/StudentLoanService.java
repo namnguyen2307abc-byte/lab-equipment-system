@@ -1,39 +1,42 @@
 package com.lab.lab_equipment_system.service;
 
+
+
 import com.lab.lab_equipment_system.dto.CancelLoanRequestDto;
 import com.lab.lab_equipment_system.dto.CreateLoanRequestDto;
-import com.lab.lab_equipment_system.entity.*;
+import com.lab.lab_equipment_system.dto.*;
+import com.lab.lab_equipment_system.shared.enums.*;
 
 import java.util.List;
 
 public interface StudentLoanService {
 
     // UC-EM-01: Tra cứu danh mục thiết bị
-    List<Device> searchEquipment(String keyword, Long categoryId, DeviceStatus status);
+    List<StudentEquipmentResponse> searchEquipment(String keyword, Long categoryId, EquipmentStatus status);
 
-    List<Category> getAllCategories();
+    List<CategoryResponse> getAllCategories();
 
     // UC-EM-02: Xem chi tiết thiết bị
-    Device getDeviceDetails(Long deviceId);
+    StudentEquipmentResponse getDeviceDetails(Long deviceId);
 
     // UC-EM-03: Tạo phiếu mượn thiết bị
-    LoanRequest createLoanRequest(User student, CreateLoanRequestDto requestDto);
+    StudentLoanResponse createLoanRequest(UserResponse student, CreateLoanRequestDto requestDto);
 
     // UC-EM-04: Xem danh sách phiếu mượn cá nhân
-    List<LoanRequest> getPersonalLoanRequests(User student, LoanStatus statusFilter);
+    List<StudentLoanResponse> getPersonalLoanRequests(UserResponse student, LoanStatus statusFilter);
 
     // UC-EM-05: Xem chi tiết phiếu mượn
-    LoanRequest getLoanRequestDetails(Long loanId, User student);
+    StudentLoanResponse getLoanRequestDetails(Long loanId, UserResponse student);
 
     // UC-EM-06: Theo dõi thông báo trạng thái phiếu mượn
-    List<LoanNotification> getStudentNotifications(User student);
+    List<StudentNotificationResponse> getStudentNotifications(UserResponse student);
 
-    long getUnreadNotificationCount(User student);
+    long getUnreadNotificationCount(UserResponse student);
 
-    void markNotificationAsRead(Long notificationId, User student);
+    void markNotificationAsRead(Long notificationId, UserResponse student);
 
-    void markAllNotificationsAsRead(User student);
+    void markAllNotificationsAsRead(UserResponse student);
 
     // UC-EM-07: Hủy phiếu mượn
-    LoanRequest cancelLoanRequest(User student, CancelLoanRequestDto cancelDto);
+    StudentLoanResponse cancelLoanRequest(UserResponse student, CancelLoanRequestDto cancelDto);
 }
