@@ -13,6 +13,10 @@ public class CreateLoanRequestDto {
     @NotNull(message = "Vui lòng chọn thiết bị muốn mượn")
     private Long deviceId;
 
+    @NotNull(message = "Vui lòng chọn thời gian bắt đầu mượn")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime borrowDate = LocalDateTime.now();
+
     @NotNull(message = "Vui lòng chọn thời gian dự kiến trả")
     @Future(message = "Thời gian dự kiến trả phải sau thời điểm hiện tại")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -30,6 +34,15 @@ public class CreateLoanRequestDto {
 
     public CreateLoanRequestDto(Long deviceId, LocalDateTime dueAt, String purpose, String notes) {
         this.deviceId = deviceId;
+        this.borrowDate = LocalDateTime.now();
+        this.dueAt = dueAt;
+        this.purpose = purpose;
+        this.notes = notes;
+    }
+
+    public CreateLoanRequestDto(Long deviceId, LocalDateTime borrowDate, LocalDateTime dueAt, String purpose, String notes) {
+        this.deviceId = deviceId;
+        this.borrowDate = borrowDate;
         this.dueAt = dueAt;
         this.purpose = purpose;
         this.notes = notes;
@@ -41,6 +54,14 @@ public class CreateLoanRequestDto {
 
     public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public LocalDateTime getBorrowDate() {
+        return borrowDate;
+    }
+
+    public void setBorrowDate(LocalDateTime borrowDate) {
+        this.borrowDate = borrowDate;
     }
 
     public LocalDateTime getDueAt() {

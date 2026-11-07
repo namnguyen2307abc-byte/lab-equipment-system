@@ -26,6 +26,9 @@ public class LoanRequest {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "borrow_date")
+    private LocalDateTime borrowDate = LocalDateTime.now();
+
     @Column(name = "due_at", nullable = false)
     private LocalDateTime dueAt;
 
@@ -118,6 +121,14 @@ public class LoanRequest {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getBorrowDate() {
+        return borrowDate != null ? borrowDate : createdAt;
+    }
+
+    public void setBorrowDate(LocalDateTime borrowDate) {
+        this.borrowDate = borrowDate;
     }
 
     public LocalDateTime getDueAt() {

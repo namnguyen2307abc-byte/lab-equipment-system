@@ -76,6 +76,9 @@ public class StudentLoanServiceImpl implements StudentLoanService {
                 requestDto.getPurpose(),
                 requestDto.getNotes()
         );
+        if (requestDto.getBorrowDate() != null) {
+            loanRequest.setBorrowDate(requestDto.getBorrowDate());
+        }
 
         LoanRequest savedRequest = loanRequestRepository.save(loanRequest);
 
