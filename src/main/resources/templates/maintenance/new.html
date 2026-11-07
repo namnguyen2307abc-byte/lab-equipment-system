@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head><title>Tạo phiếu bảo trì</title></head><body>
+<main id="main-content" class="page-content maintenance-content" tabindex="-1">
+    <a class="maintenance-back" th:href="@{/maintenance}">← Danh sách phiếu bảo trì</a>
+    <div class="page-heading"><div><p class="eyebrow">GHI NHẬN SỰ CỐ</p><h1>Tạo phiếu bảo trì</h1><p class="page-description">Dành cho lỗi phát hiện khi nhận trả hoặc kiểm tra thiết bị trong kho.</p></div></div>
+    <div class="maintenance-form-grid"><section class="panel maintenance-form-panel">
+        <form method="post" th:action="@{/maintenance}" th:object="${createForm}">
+            <input type="hidden" th:field="*{loanRequestId}">
+            <div th:if="${createForm.loanRequestId != null}" class="maintenance-alert info-alert">Liên kết với phiếu mượn #<span th:text="${createForm.loanRequestId}"></span>. Phiếu mượn phải đã được nhận trả và thuộc thiết bị được chọn.</div>
+            <div class="form-field"><label for="equipmentId">Thiết bị <span>*</span></label><select id="equipmentId" th:field="*{equipmentId}" required th:attr="aria-invalid=${#fields.hasErrors('equipmentId')}"><option value="">Chọn thiết bị cần bảo trì</option><option th:each="e : ${equipmentOptions}" th:value="${e.id}" th:text="${e.code + ' — ' + e.name}"></option></select><p class="field-error" th:if="${#fields.hasErrors('equipmentId')}" th:errors="*{equipmentId}"></p><small>Thiết bị phải ở trong kho, chưa ngừng sử dụng và chưa có phiếu bảo trì đang mở.</small></div>
+            <div class="form-field"><label for="description">Mô tả sự cố <span>*</span></label><textarea id="description" th:field="*{description}" rows="7" minlength="10" maxlength="1000" required placeholder="Ghi nhận tình trạng thiết bị và vấn đề phát hiện..." data-character-count th:attr="aria-invalid=${#fields.hasErrors('description')}"></textarea><div class="field-help-row"><small>Từ 10 đến 1000 ký tự.</small><small data-character-output aria-live="polite"></small></div><p class="field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></p></div>
+            <div th:if="${#lists.isEmpty(equipmentOptions)}" class="maintenance-alert warning-alert">Không có thiết bị đủ điều kiện tạo phiếu mới.</div>
+            <div class="form-actions"><a class="button button-secondary" th:href="@{/maintenance}">Quay lại</a><button class="button button-primary" type="submit" th:disabled="${#lists.isEmpty(equipmentOptions)}">Tạo phiếu bảo trì <svg class="icon"><use href="#icon-arrow"/></svg></button></div>
+        </form>
+    </section><aside class="panel maintenance-help-panel"><span class="help-icon"><svg class="icon"><use href="#icon-equipment"/></svg></span><h2>Ghi nhận đúng.<br>Theo dõi xuyên suốt.</h2><ol><li>Mỗi thiết bị chỉ có một phiếu đang xử lý.</li><li>Tạo phiếu sẽ chuyển thiết bị sang trạng thái đang bảo trì.</li><li>Phiếu mới cần được tiếp nhận trước khi cập nhật sửa chữa.</li></ol><p>Thông tin người tạo được lấy từ tài khoản hiện tại.</p></aside></div>
+</main></body></html>

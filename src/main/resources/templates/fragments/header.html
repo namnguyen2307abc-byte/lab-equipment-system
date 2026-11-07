@@ -14,26 +14,35 @@
         </nav>
     </div>
     <div class="header-end">
-        <a class="icon-button" th:href="@{/student/notifications}" title="Thông báo" style="position: relative;">
+        <a class="icon-button" th:if="${currentUser != null and currentUser.role.name() == 'STUDENT'}"
+           th:href="@{/student/notifications}" title="Thông báo" aria-label="Thông báo" style="position: relative;">
             <svg class="icon"><use href="#icon-spark"/></svg>
             <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}"
                   th:text="${unreadNotificationCount}"
                   style="position: absolute; top: -5px; right: -5px; background: #e05252; color: #fff; font-size: 10px; font-weight: 700; border-radius: 9px; padding: 1px 5px; line-height: 1.2;"></span>
         </a>
-        <span class="preview-badge" th:if="${currentUser == null}">Bản xem mẫu</span>
+        <span class="preview-badge" th:if="${maintenanceUser == null and currentUser == null}">Bản xem mẫu</span>
         <span class="header-separator"></span>
-        <div class="profile-preview" th:if="${currentUser != null}">
-            <span class="avatar" th:text="${currentUser.role.name() == 'STUDENT' ? 'SV' : 'NV'}">SV</span>
+        <div class="profile-preview" th:if="${maintenanceUser != null}">
+            <span class="avatar" th:text="${maintenanceUser.staff ? 'NV' : 'SV'}"></span>
             <span class="profile-label">
-                <strong th:text="${currentUser.fullName}">Sinh viên</strong>
-                <span th:text="${currentUser.role.name() == 'STUDENT' ? 'Sinh viên' : 'Cán bộ phòng Lab'}">Sinh viên</span>
+                <strong th:text="${maintenanceUser.name}"></strong>
+                <span th:text="${maintenanceUser.role.label}"></span>
             </span>
         </div>
-        <div class="profile-preview" th:if="${currentUser == null}" aria-label="Vai trò minh họa: sinh viên">
-            <span class="avatar">SV</span>
-            <span class="profile-label"><strong>Sinh viên</strong><span>Phòng thí nghiệm</span></span>
+        <div class="profile-preview" th:if="${maintenanceUser == null and currentUser != null}">
+            <span class="avatar" th:text="${currentUser.role.name() == 'STUDENT' ? 'SV' : 'NV'}"></span>
+            <span class="profile-label">
+                <strong th:text="${currentUser.fullName}"></strong>
+                <span th:text="${currentUser.role.name() == 'STUDENT' ? 'Sinh viên' : 'Cán bộ phòng Lab'}"></span>
+            </span>
         </div>
-        <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
+        <div class="profile-preview" th:if="${maintenanceUser == null and currentUser == null}" aria-label="Chưa có thông tin người dùng">
+            <span class="avatar">ND</span>
+            <span class="profile-label"><strong>Người dùng</strong><span>Phòng thí nghiệm</span></span>
+        </div>
+        <form th:if="${maintenanceUser != null or currentUser != null}"
+              th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
             <button type="submit" class="icon-button" title="Đăng xuất" aria-label="Đăng xuất" style="margin-left: 4px;">
                 <svg class="icon"><use href="#icon-close"/></svg>
             </button>
