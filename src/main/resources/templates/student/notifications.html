@@ -1,81 +1,75 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Thông báo phiếu mượn')}"></head>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head>
+    <title>Thông báo trạng thái</title>
+</head>
 <body>
-    <nav th:replace="~{fragments/layout :: navbar}"></nav>
-    <main class="main-content">
-        <div th:replace="~{fragments/layout :: alerts}"></div>
-        <div class="container mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <div>
-                    <h3 class="fw-bold mb-1 text-primary">
-                        <i class="fas fa-bell me-2"></i>Thông Báo Trạng Thái Phiếu Mượn
-                    </h3>
-                    <p class="text-muted mb-0">Theo dõi cập nhật từ phòng Lab về phê duyệt, bàn giao và nhắc nhở hạn trả thiết bị</p>
-                </div>
-                <div th:if="${unreadNotificationCount > 0}">
-                    <form th:action="@{/student/notifications/read-all}" method="post">
-                        <button type="submit" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-check-double me-1"></i> Đánh dấu tất cả đã đọc
-                        </button>
-                    </form>
-                </div>
-            </div>
+<main id="main-content" class="page-content student-content" tabindex="-1">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">DÀNH CHO SINH VIÊN · THÔNG BÁO</p>
+            <h1>Hộp thư thông báo</h1>
+            <p class="page-description">Cập nhật nhanh tình trạng phê duyệt, lịch trình và các phản hồi từ phòng Lab liên quan đến phiếu mượn của bạn.</p>
+        </div>
+        <form th:if="${!notifications.empty}" th:action="@{/student/notifications/read-all}" method="post" style="margin: 0;">
+            <button class="button button-secondary" type="submit">
+                <svg class="icon"><use href="#icon-check"/></svg>Đánh dấu tất cả đã đọc
+            </button>
+        </form>
+    </div>
 
-            <div th:if="${#lists.isEmpty(notifications)}" class="card text-center py-5 border-0 shadow-sm">
-                <div class="card-body">
-                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
-                    <h5 class="text-secondary">Bạn chưa có thông báo nào</h5>
-                    <p class="text-muted">Các thông báo về phê duyệt, bàn giao và nhắc nhở hạn trả thiết bị sẽ hiển thị tại đây.</p>
-                    <a th:href="@{/student/equipment}" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-search me-1"></i> Khám phá danh mục thiết bị
-                    </a>
-                </div>
+    <!-- Danh sách thông báo -->
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Danh sách thông báo cá nhân</h2>
+                <p>Thông báo mới nhất hiển thị trên cùng</p>
             </div>
+            <span class="preview-badge" th:text="${notifications.size() + ' thông báo'}">0 thông báo</span>
+        </div>
 
-            <div th:if="${not #lists.isEmpty(notifications)}" class="row g-3">
-                <div class="col-12" th:each="n : ${notifications}">
-                    <div class="card border-0 shadow-sm p-3 transition"
-                         th:classappend="${!n.read} ? 'border-start border-4 border-primary bg-white' : 'bg-light opacity-85'">
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="p-2 rounded-circle bg-light border shadow-xs">
-                                <i th:class="${n.type.iconClass} + ' fa-lg'"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap">
-                                    <h6 class="fw-bold mb-0 text-dark" th:text="${n.title}">Thông báo</h6>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="text-muted small">
-                                            <i class="fas fa-clock me-1"></i>
-                                            <span th:text="${#temporals.format(n.createdAt, 'dd/MM/yyyy HH:mm')}">02/11/2026 10:00</span>
-                                        </span>
-                                        <span th:if="${!n.read}" class="badge bg-primary">Mới</span>
-                                    </div>
-                                </div>
-                                <p class="text-secondary small mb-2" th:text="${n.message}">Nội dung thông báo...</p>
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <a th:if="${n.loanRequest != null}"
-                                       th:href="@{'/student/loans/' + ${n.loanRequest.id}}"
-                                       class="btn btn-link btn-sm p-0 text-decoration-none fw-semibold">
-                                        <i class="fas fa-external-link-alt me-1"></i> Xem chi tiết phiếu <span th:text="${n.loanRequest.requestCode}">LR-XXX</span>
-                                    </a>
-                                    <form th:if="${!n.read}"
-                                          th:action="@{'/student/notifications/' + ${n.id} + '/read'}"
-                                          method="post"
-                                          class="ms-auto">
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm py-0 px-2" style="font-size: 0.75rem;">
-                                            <i class="fas fa-check me-1"></i> Đánh dấu đã đọc
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+        <div class="notification-list" th:if="${!notifications.empty}">
+            <article class="notification-item" th:each="n : ${notifications}" th:style="${n.isRead ? '' : 'background: #fbfdf9;'}">
+                <div class="notification-icon" th:style="${n.isRead ? 'background:#eef1f5; color:#8792a0;' : 'background:var(--sage); color:#597a4d;'}">
+                    <svg class="icon"><use href="#icon-spark"/></svg>
+                </div>
+
+                <div class="notification-body">
+                    <div class="notification-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h3 class="notification-title" th:text="${n.title}">Tiêu đề thông báo</h3>
+                            <span th:unless="${n.isRead}" style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #e05252;" title="Chưa đọc"></span>
                         </div>
+                        <time class="notification-time" th:text="${#temporals.format(n.createdAt, 'dd/MM/yyyy HH:mm')}">Thời gian</time>
+                    </div>
+
+                    <p class="notification-msg" th:text="${n.message}">Nội dung thông báo</p>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 12px;">
+                        <a th:if="${n.loanRequest != null}" class="text-link" th:href="@{/student/loans/{id}(id=${n.loanRequest.id})}">
+                            <span>Xem phiếu mượn liên quan</span>
+                            <svg class="icon"><use href="#icon-arrow"/></svg>
+                        </a>
+                        <span th:unless="${n.loanRequest != null}"></span>
+
+                        <form th:unless="${n.isRead}" th:action="@{/student/notifications/{id}/read(id=${n.id})}" method="post" style="margin: 0;">
+                            <button type="submit" class="button button-secondary" style="min-height: 28px; padding: 4px 10px; font-size: 11px;">
+                                Đã đọc
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </div>
+            </article>
         </div>
-    </main>
-    <footer th:replace="~{fragments/layout :: footer}"></footer>
-    <div th:replace="~{fragments/layout :: scripts}"></div>
+
+        <!-- Trạng thái trống (Empty State) -->
+        <div class="empty-state" th:if="${notifications.empty}">
+            <span class="empty-icon"><svg class="icon"><use href="#icon-spark"/></svg></span>
+            <h3>Hộp thư của bạn đang trống</h3>
+            <p>Hiện tại bạn không có thông báo mới nào. Các thông báo phê duyệt hoặc thay đổi trạng thái phiếu mượn sẽ hiển thị tại đây.</p>
+        </div>
+    </section>
+</main>
 </body>
 </html>

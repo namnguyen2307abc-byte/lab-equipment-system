@@ -15,4 +15,8 @@ public enum DeviceStatus {
     public String getDisplayName() {
         return displayName;
     }
+
+    public String getLabel() {
+        return displayName;
+    }
 }

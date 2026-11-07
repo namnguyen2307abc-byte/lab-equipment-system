@@ -20,6 +20,10 @@ public enum LoanStatus {
         return displayName;
     }
 
+    public String getLabel() {
+        return displayName;
+    }
+
     public String getBadgeClass() {
         return badgeClass;
     }

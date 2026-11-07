@@ -1,136 +1,126 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('Danh mục thiết bị')}"></head>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head>
+    <title>Danh mục thiết bị</title>
+</head>
 <body>
-    <nav th:replace="~{fragments/layout :: navbar}"></nav>
-    <main class="main-content">
-        <div th:replace="~{fragments/layout :: alerts}"></div>
-        <div class="container mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                <div>
-                    <h3 class="fw-bold mb-1 text-primary">
-                        <i class="fas fa-boxes me-2"></i>Danh Mục Thiết Bị Phòng Lab
-                    </h3>
-                    <p class="text-muted mb-0">Tra cứu, lọc và chọn thiết bị phù hợp để phục vụ học tập và nghiên cứu</p>
+<main id="main-content" class="page-content student-content" tabindex="-1">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">DÀNH CHO SINH VIÊN · QUẢN LÝ THIẾT BỊ</p>
+            <h1>Danh mục thiết bị phòng Lab</h1>
+            <p class="page-description">Tra cứu thông số kỹ thuật, tình trạng sẵn sàng và đăng ký mượn thiết bị phục vụ học tập, nghiên cứu.</p>
+        </div>
+        <a class="button button-primary" th:href="@{/student/loans/create}">
+            <svg class="icon"><use href="#icon-arrow"/></svg>Đăng ký mượn thiết bị
+        </a>
+    </div>
+
+    <!-- Thông báo kết quả thao tác -->
+    <div th:if="${successMessage}" class="student-alert alert-success">
+        <svg class="icon"><use href="#icon-check"/></svg>
+        <span th:text="${successMessage}">Thao tác thành công</span>
+    </div>
+    <div th:if="${errorMessage}" class="student-alert alert-error">
+        <svg class="icon"><use href="#icon-close"/></svg>
+        <span th:text="${errorMessage}">Đã xảy ra lỗi</span>
+    </div>
+
+    <!-- Thống kê trạng thái thiết bị -->
+    <section class="student-stats" aria-label="Thống kê thiết bị">
+        <article>
+            <span>Tổng thiết bị</span>
+            <strong th:text="${totalDevices}">0</strong>
+            <small>Toàn bộ tài sản phòng Lab</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#558f44;"></span>Sẵn sàng mượn</span>
+            <strong th:text="${availableDevices}">0</strong>
+            <small>Đang có sẵn tại phòng thực hành</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#4178b5;"></span>Đang được mượn</span>
+            <strong th:text="${inUseDevices}">0</strong>
+            <small>Sinh viên / giảng viên đang mượn</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#c4832e;"></span>Đang bảo trì</span>
+            <strong th:text="${maintenanceDevices}">0</strong>
+            <small>Đang kiểm tra, sửa chữa định kỳ</small>
+        </article>
+    </section>
+
+    <!-- Panel bộ lọc tìm kiếm -->
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Tìm kiếm &amp; Lọc thiết bị</h2>
+                <p>Nhập từ khóa mã, tên thiết bị hoặc chọn theo danh mục phù hợp</p>
+            </div>
+            <span class="preview-badge" th:text="${devices.size() + ' thiết bị'}">0 thiết bị</span>
+        </div>
+
+        <form class="student-filters" method="get" th:action="@{/student/equipment}">
+            <div class="filter-query">
+                <label for="keyword">Từ khóa tìm kiếm</label>
+                <input id="keyword" name="keyword" type="search" maxlength="100" th:value="${selectedKeyword}" placeholder="Nhập tên hoặc mã thiết bị (VD: ARD, ESP, Máy hiện sóng...)">
+            </div>
+            <div>
+                <label for="categoryId">Danh mục thiết bị</label>
+                <select id="categoryId" name="categoryId">
+                    <option value="">Tất cả danh mục</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${selectedCategoryId == cat.id}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="status">Tình trạng</label>
+                <select id="status" name="status">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="st : ${statuses}" th:value="${st.name()}" th:text="${st.label}" th:selected="${selectedStatus == st}"></option>
+                </select>
+            </div>
+            <button class="button button-primary" type="submit">Tìm kiếm</button>
+            <a class="filter-reset" th:href="@{/student/equipment}">Bỏ lọc</a>
+        </form>
+
+        <!-- Danh sách thiết bị dạng lưới thẻ (Cards Grid) -->
+        <div class="equipment-grid" th:if="${!devices.empty}">
+            <article class="equipment-card" th:each="device : ${devices}">
+                <div class="equipment-card-header">
+                    <div>
+                        <span class="equipment-code" th:text="${device.code}">CODE</span>
+                        <h3 class="equipment-name" th:text="${device.name}">Tên thiết bị</h3>
+                        <span class="equipment-category" th:text="${device.category != null ? device.category.name : 'Chung'}">Danh mục</span>
+                    </div>
+                    <span class="status-badge" th:classappend="${'status-' + device.status.name()}" th:text="${device.status.label}">Sẵn sàng</span>
                 </div>
-                <div>
-                    <a th:href="@{/student/loans/create}" class="btn btn-primary px-3 py-2 shadow-sm">
-                        <i class="fas fa-plus-circle me-1"></i> Tạo Phiếu Mượn Thiết Bị
+
+                <p class="equipment-specs" th:text="${device.specifications != null and !device.specifications.isEmpty() ? device.specifications : 'Chưa có thông số chi tiết.'}">Thông số kỹ thuật</p>
+
+                <div class="equipment-location">
+                    <svg class="icon" style="width:14px;height:14px;"><use href="#icon-overview"/></svg>
+                    <span>Vị trí: <strong th:text="${device.location}">Phòng Lab</strong></span>
+                </div>
+
+                <div class="equipment-card-actions">
+                    <a class="button button-secondary" th:href="@{/student/equipment/{id}(id=${device.id})}">
+                        Xem chi tiết
+                    </a>
+                    <a th:if="${device.status.name() == 'AVAILABLE'}" class="button button-primary" th:href="@{/student/loans/create(deviceId=${device.id})}">
+                        <svg class="icon"><use href="#icon-arrow"/></svg>Mượn ngay
                     </a>
                 </div>
-            </div>
-
-            <div class="card mb-4 border-0 shadow-sm">
-                <div class="card-body p-4 bg-white rounded-3">
-                    <form th:action="@{/student/equipment}" method="get" class="row g-3">
-                        <div class="col-md-5">
-                            <label class="form-label fw-semibold small text-secondary">
-                                <i class="fas fa-search me-1"></i> Từ khóa (Mã hoặc tên thiết bị)
-                            </label>
-                            <input type="text" name="keyword" th:value="${selectedKeyword}" class="form-control"
-                                   placeholder="Ví dụ: ARD-001, Arduino, ESP32, Fluke...">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label fw-semibold small text-secondary">
-                                <i class="fas fa-tags me-1"></i> Danh mục thiết bị
-                            </label>
-                            <select name="categoryId" class="form-select">
-                                <option value="">-- Tất cả danh mục --</option>
-                                <option th:each="cat : ${categories}"
-                                        th:value="${cat.id}"
-                                        th:text="${cat.name}"
-                                        th:selected="${selectedCategoryId == cat.id}">
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-semibold small text-secondary">
-                                <i class="fas fa-toggle-on me-1"></i> Trạng thái
-                            </label>
-                            <select name="status" class="form-select">
-                                <option value="">-- Tất cả --</option>
-                                <option th:each="st : ${statuses}"
-                                        th:value="${st}"
-                                        th:text="${st.displayName}"
-                                        th:selected="${selectedStatus == st}">
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end gap-2">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-filter me-1"></i> Lọc
-                            </button>
-                            <a th:href="@{/student/equipment}" class="btn btn-outline-secondary" title="Đặt lại bộ lọc">
-                                <i class="fas fa-redo"></i>
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div th:if="${#lists.isEmpty(devices)}" class="card text-center py-5">
-                <div class="card-body">
-                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                    <h5 class="text-secondary">Không tìm thấy thiết bị nào phù hợp</h5>
-                    <p class="text-muted">Vui lòng thử lại với các tiêu chí tìm kiếm hoặc bộ lọc khác.</p>
-                    <a th:href="@{/student/equipment}" class="btn btn-outline-primary btn-sm">Xem tất cả thiết bị</a>
-                </div>
-            </div>
-
-            <div th:if="${not #lists.isEmpty(devices)}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                <div class="col" th:each="item : ${devices}">
-                    <div class="card h-100 card-hover">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-dark px-2 py-1" th:text="${item.code}">ARD-001</span>
-                                <span th:if="${item.status.name() == 'AVAILABLE'}" class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
-                                    <i class="fas fa-check-circle me-1"></i> Khả dụng
-                                </span>
-                                <span th:if="${item.status.name() == 'BORROWED'}" class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">
-                                    <i class="fas fa-clock me-1"></i> Đang mượn
-                                </span>
-                                <span th:if="${item.status.name() == 'MAINTENANCE'}" class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
-                                    <i class="fas fa-tools me-1"></i> Đang bảo trì
-                                </span>
-                                <span th:if="${item.status.name() == 'RETIRED'}" class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">
-                                    <i class="fas fa-archive me-1"></i> Ngừng sử dụng
-                                </span>
-                            </div>
-
-                            <h5 class="card-title fw-bold text-dark mb-1" th:text="${item.name}">Kit Arduino Uno R3</h5>
-                            <p class="small text-muted mb-2">
-                                <i class="fas fa-tag me-1 text-primary"></i> <span th:text="${item.category.name}">Vi điều khiển</span>
-                            </p>
-
-                            <p class="card-text text-secondary small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;"
-                               th:text="${item.specifications}">
-                                Thông số kỹ thuật chi tiết của thiết bị...
-                            </p>
-
-                            <div class="mt-2 pt-2 border-top small text-muted d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-map-marker-alt me-1 text-danger"></i> <span th:text="${item.location ?: 'Phòng Lab 302'}">Tủ A1</span></span>
-                            </div>
-
-                            <div class="d-flex gap-2 mt-3 pt-2">
-                                <a th:href="@{'/student/equipment/' + ${item.id}}" class="btn btn-outline-primary btn-sm flex-fill">
-                                    <i class="fas fa-info-circle me-1"></i> Chi tiết
-                                </a>
-                                <a th:if="${item.isAvailable()}"
-                                   th:href="@{'/student/loans/create'(deviceId=${item.id})}"
-                                   class="btn btn-primary btn-sm flex-fill">
-                                    <i class="fas fa-hand-holding me-1"></i> Mượn ngay
-                                </a>
-                                <button th:unless="${item.isAvailable()}" class="btn btn-secondary btn-sm flex-fill" disabled>
-                                    <i class="fas fa-ban me-1"></i> Không khả dụng
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </article>
         </div>
-    </main>
-    <footer th:replace="~{fragments/layout :: footer}"></footer>
-    <div th:replace="~{fragments/layout :: scripts}"></div>
+
+        <!-- Trạng thái trống (Empty State) -->
+        <div class="empty-state" th:if="${devices.empty}">
+            <span class="empty-icon"><svg class="icon"><use href="#icon-equipment"/></svg></span>
+            <h3>Không tìm thấy thiết bị phù hợp</h3>
+            <p>Vui lòng thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc để hiển thị toàn bộ thiết bị.</p>
+        </div>
+    </section>
+</main>
 </body>
 </html>

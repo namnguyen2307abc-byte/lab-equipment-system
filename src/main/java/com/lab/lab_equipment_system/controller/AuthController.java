@@ -27,6 +27,17 @@ public class AuthController {
         return "redirect:/student/equipment";
     }
 
+    @GetMapping("/ui")
+    public String ui(@RequestParam(value = "section", required = false) String section) {
+        if ("loans".equalsIgnoreCase(section)) {
+            return "redirect:/student/loans";
+        }
+        if ("maintenance".equalsIgnoreCase(section)) {
+            return "redirect:/maintenance";
+        }
+        return "redirect:/student/equipment";
+    }
+
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "logout", required = false) String logout,

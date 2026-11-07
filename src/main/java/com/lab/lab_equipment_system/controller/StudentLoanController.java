@@ -56,6 +56,8 @@ public class StudentLoanController {
         }
         dto.setDueAt(LocalDateTime.now().plusDays(3).withHour(17).withMinute(0).withSecond(0).withNano(0));
 
+        model.addAttribute("pageTitle", "Đăng ký mượn thiết bị");
+        model.addAttribute("activeMenu", "loans-create");
         model.addAttribute("loanRequestDto", dto);
         model.addAttribute("availableDevices", studentLoanService.searchEquipment(null, null, DeviceStatus.AVAILABLE));
         return "student/loan-create";
@@ -74,6 +76,9 @@ public class StudentLoanController {
             redirectAttributes.addFlashAttribute("errorMessage", "Vui l\u00f2ng \u0111\u0103ng nh\u1eadp \u0111\u1ec3 th\u1ef1c hi\u1ec7n ch\u1ee9c n\u0103ng n\u00e0y.");
             return "redirect:/login";
         }
+
+        model.addAttribute("pageTitle", "Đăng ký mượn thiết bị");
+        model.addAttribute("activeMenu", "loans-create");
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("availableDevices", studentLoanService.searchEquipment(null, null, DeviceStatus.AVAILABLE));
@@ -94,6 +99,12 @@ public class StudentLoanController {
         } catch (Exception ex) {
             model.addAttribute("errorMessage", ex.getMessage());
             model.addAttribute("availableDevices", studentLoanService.searchEquipment(null, null, DeviceStatus.AVAILABLE));
+            if (dto.getDeviceId() != null) {
+                try {
+                    model.addAttribute("selectedDevice", studentLoanService.getDeviceDetails(dto.getDeviceId()));
+                } catch (Exception ignored) {
+                }
+            }
             return "student/loan-create";
         }
     }
@@ -112,9 +123,25 @@ public class StudentLoanController {
         }
 
         List<LoanRequest> loans = studentLoanService.getPersonalLoanRequests(student, status);
+        List<LoanRequest> allLoans = studentLoanService.getPersonalLoanRequests(student, null);
+
+        long pendingCount = allLoans.stream().filter(l -> l.getStatus() == LoanStatus.PENDING).count();
+        long borrowedCount = allLoans.stream().filter(l -> l.getStatus() == LoanStatus.HANDED_OVER).count();
+        long returnedCount = allLoans.stream().filter(l -> l.getStatus() == LoanStatus.RETURNED).count();
+
+        model.addAttribute("pageTitle", "Phiếu mượn của tôi");
+        model.addAttribute("activeMenu", "loans");
         model.addAttribute("loans", loans);
         model.addAttribute("statuses", LoanStatus.values());
         model.addAttribute("selectedStatus", status);
+
+        model.addAttribute("totalLoans", allLoans.size());
+        model.addAttribute("pendingLoans", pendingCount);
+        model.addAttribute("borrowedLoans", borrowedCount);
+        model.addAttribute("returnedLoans", returnedCount);
+
+        model.addAttribute("cancelDto", new CancelLoanRequestDto());
+
         return "student/loan-list";
     }
 
@@ -133,6 +160,8 @@ public class StudentLoanController {
 
         try {
             LoanRequest loan = studentLoanService.getLoanRequestDetails(id, student);
+            model.addAttribute("pageTitle", "Chi tiết phiếu #" + loan.getRequestCode());
+            model.addAttribute("activeMenu", "loans");
             model.addAttribute("loan", loan);
             model.addAttribute("cancelDto", new CancelLoanRequestDto(id, ""));
             return "student/loan-detail";
@@ -185,6 +214,8 @@ public class StudentLoanController {
         }
 
         List<LoanNotification> notifications = studentLoanService.getStudentNotifications(student);
+        model.addAttribute("pageTitle", "Thông báo trạng thái");
+        model.addAttribute("activeMenu", "notifications");
         model.addAttribute("notifications", notifications);
         return "student/notifications";
     }

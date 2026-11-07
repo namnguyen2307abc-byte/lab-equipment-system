@@ -44,12 +44,26 @@ public class StudentEquipmentController {
                                 @RequestParam(value = "status", required = false) DeviceStatus status,
                                 Model model) {
         List<Device> devices = studentLoanService.searchEquipment(keyword, categoryId, status);
+        List<Device> allDevices = studentLoanService.searchEquipment(null, null, null);
+
+        long availableCount = allDevices.stream().filter(d -> d.getStatus() == DeviceStatus.AVAILABLE).count();
+        long borrowedCount = allDevices.stream().filter(d -> d.getStatus() == DeviceStatus.BORROWED).count();
+        long maintenanceCount = allDevices.stream().filter(d -> d.getStatus() == DeviceStatus.MAINTENANCE).count();
+
+        model.addAttribute("pageTitle", "Danh mục thiết bị");
+        model.addAttribute("activeMenu", "equipment");
         model.addAttribute("devices", devices);
         model.addAttribute("categories", studentLoanService.getAllCategories());
         model.addAttribute("statuses", DeviceStatus.values());
         model.addAttribute("selectedKeyword", keyword);
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("selectedStatus", status);
+
+        model.addAttribute("totalDevices", allDevices.size());
+        model.addAttribute("availableDevices", availableCount);
+        model.addAttribute("inUseDevices", borrowedCount);
+        model.addAttribute("maintenanceDevices", maintenanceCount);
+
         return "student/equipment-catalog";
     }
 
@@ -59,6 +73,8 @@ public class StudentEquipmentController {
     @GetMapping("/{id}")
     public String viewEquipmentDetail(@PathVariable("id") Long id, Model model) {
         Device device = studentLoanService.getDeviceDetails(id);
+        model.addAttribute("pageTitle", "Chi tiết thiết bị: " + device.getName());
+        model.addAttribute("activeMenu", "equipment");
         model.addAttribute("device", device);
         return "student/equipment-detail";
     }
