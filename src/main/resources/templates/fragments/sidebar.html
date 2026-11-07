@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside id="app-sidebar" class="app-sidebar" th:fragment="sidebar(activeMenu)" aria-label="Điều hướng chính">
+    <div class="sidebar-brand-row">
+        <a class="brand" href="/ui" th:href="@{/ui}" aria-label="LabSpace — Tổng quan">
+            <span class="brand-mark"><svg class="icon"><use href="#icon-logo"/></svg></span>
+            <span>labspace<span class="brand-dot">.</span></span>
+        </a>
+        <button class="icon-button sidebar-close" type="button" aria-label="Đóng menu điều hướng">
+            <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+    </div>
+    <p class="sidebar-caption">QUẢN LÝ PHÒNG LAB</p>
+    <nav class="sidebar-nav" aria-label="Các chức năng">
+        <a class="nav-link" href="/ui" th:href="@{/ui}"
+           th:classappend="${activeMenu == 'overview' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'overview' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-overview"/></svg><span>Tổng quan</span><span class="nav-active-dot"></span>
+        </a>
+        <a class="nav-link" href="/ui?section=equipment" th:href="@{/ui(section='equipment')}"
+           th:classappend="${activeMenu == 'equipment' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'equipment' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-equipment"/></svg><span>Thiết bị</span><span class="nav-active-dot"></span>
+        </a>
+        <a class="nav-link" href="/ui?section=loans" th:href="@{/ui(section='loans')}"
+           th:classappend="${activeMenu == 'loans' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'loans' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-loans"/></svg><span>Phiếu mượn của tôi</span><span class="nav-active-dot"></span>
+        </a>
+        <a class="nav-link" href="/ui?section=processing" th:href="@{/ui(section='processing')}"
+           th:classappend="${activeMenu == 'processing' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'processing' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-processing"/></svg><span>Xử lý mượn trả</span><span class="nav-active-dot"></span>
+        </a>
+        <a class="nav-link" href="/ui?section=maintenance" th:href="@{/ui(section='maintenance')}"
+           th:classappend="${activeMenu == 'maintenance' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'maintenance' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-maintenance"/></svg><span>Bảo trì thiết bị</span><span class="nav-active-dot"></span>
+        </a>
+        <div class="nav-divider"></div>
+        <a class="nav-link" href="/ui?section=accounts" th:href="@{/ui(section='accounts')}"
+           th:classappend="${activeMenu == 'accounts' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'accounts' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-accounts"/></svg><span>Tài khoản</span><span class="nav-active-dot"></span>
+        </a>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="sidebar-note">
+            <svg class="icon"><use href="#icon-spark"/></svg>
+            <p>Mọi thiết bị.<br><strong>Một nơi quản lý.</strong></p>
+            <span>Để mỗi buổi thực hành luôn sẵn sàng.</span>
+        </div>
+        <div class="sidebar-signature"><span class="status-dot"></span> LAB EQUIPMENT SYSTEM</div>
+    </div>
+</aside>
+</body>
+</html>
