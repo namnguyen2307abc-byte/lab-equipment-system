@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<div th:fragment="success" th:if="${successMessage}" class="maintenance-alert success-alert" role="status">
+    <svg class="icon"><use href="#icon-check"/></svg><span th:text="${successMessage}"></span>
+</div>
+</body></html>
