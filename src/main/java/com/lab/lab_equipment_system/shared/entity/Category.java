@@ -1,8 +1,6 @@
 package com.lab.lab_equipment_system.shared.entity;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import org.hibernate.annotations.Nationalized;
-import com.lab.lab_equipment_system.shared.enums.*;
 
 @Entity
 @Table(name = "categories")
@@ -18,6 +16,14 @@ public class Category {
     @Nationalized
     @Column(name = "description", nullable = true, length = 500)
     private String description;
+
+    public Category() {
+    }
+
+    public Category(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

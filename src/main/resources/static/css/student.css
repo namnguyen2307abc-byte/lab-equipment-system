@@ -1,0 +1,581 @@
+/* student.css - Giao diện Module Sinh viên theo hệ thống mẫu LabSpace */
+
+.student-content {
+    max-width: 1700px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.student-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #647562;
+    font-size: 13px;
+    font-weight: 500;
+}
+.student-back:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* Thông báo Alert (Flash messages) */
+.student-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 14px 18px;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.student-alert .icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.alert-success {
+    background: #edf6e9;
+    color: #3f6832;
+    border-color: #d3e5c9;
+}
+.alert-error {
+    background: #fdf0ee;
+    color: #a83d34;
+    border-color: #f7cfcb;
+}
+
+/* Thống kê nhanh (Stats) */
+.student-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 24px 0 28px;
+}
+.student-stats article {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: #fff;
+    transition: transform .15s, box-shadow .15s;
+}
+.student-stats article:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+.student-stats article > span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6d7786;
+    font-size: 12px;
+    font-weight: 500;
+}
+.student-stats strong {
+    margin: 8px 0 4px;
+    font-size: 28px;
+    font-weight: 650;
+    line-height: 1.2;
+    color: var(--ink);
+}
+.student-stats small {
+    color: #8c96a3;
+    font-size: 11px;
+}
+
+/* Bộ lọc & Form tìm kiếm (Filters) */
+.student-filters {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 0 24px 22px;
+}
+.student-filters > div {
+    flex: 1;
+    min-width: 150px;
+}
+.student-filters .filter-query {
+    flex: 1.6;
+}
+.student-filters label, .form-field > label {
+    display: block;
+    margin-bottom: 7px;
+    color: #515e70;
+    font-size: 12px;
+    font-weight: 600;
+}
+.student-filters input, .student-filters select,
+.form-field input, .form-field select, .form-field textarea {
+    width: 100%;
+    border: 1px solid #dce2e8;
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    transition: border-color .15s, box-shadow .15s;
+}
+.student-filters input:focus, .student-filters select:focus,
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+    outline: none;
+    border-color: #6e9464;
+    box-shadow: 0 0 0 3px rgba(110, 148, 100, 0.15);
+}
+.student-filters input, .student-filters select {
+    height: 40px;
+    padding: 8px 12px;
+}
+.student-filters .button {
+    min-height: 40px;
+}
+
+/* Grid thẻ thiết bị (Equipment Catalog Cards) */
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 24px;
+}
+.equipment-card {
+    display: flex;
+    flex-direction: column;
+    padding: 22px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    transition: transform .16s, box-shadow .16s, border-color .16s;
+}
+.equipment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    border-color: #d1d8df;
+}
+.equipment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.equipment-code {
+    font-size: 11px;
+    font-weight: 700;
+    color: #59734e;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.equipment-name {
+    margin: 4px 0 8px;
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--ink);
+    line-height: 1.35;
+}
+.equipment-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #f1f4f8;
+    color: #5c6777;
+    font-size: 11px;
+    font-weight: 500;
+}
+.equipment-specs {
+    margin: 14px 0 16px;
+    color: #6a7482;
+    font-size: 12px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.equipment-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #7b8593;
+    font-size: 11px;
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #f1f3f6;
+}
+.equipment-card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+}
+.equipment-card-actions .button {
+    flex: 1;
+    min-height: 36px;
+    font-size: 11px;
+    padding: 8px 12px;
+}
+
+/* Bảng danh sách phiếu mượn (Loan Requests Table) */
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.student-table th {
+    padding: 13px 20px;
+    border-top: 1px solid #edf0f3;
+    border-bottom: 1px solid #edf0f3;
+    background: #fbfcfd;
+    color: #727e8d;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.student-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid #edf0f3;
+    font-size: 12px;
+    vertical-align: middle;
+}
+.student-table tbody tr:hover {
+    background: #fcfdfb;
+}
+.student-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.table-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Badge trạng thái (Status Badges) */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.status-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* Status thiết bị */
+.status-AVAILABLE { background: #edf7e8; color: #437a34; }
+.status-IN_USE { background: #eaf1fa; color: #32649b; }
+.status-UNDER_MAINTENANCE { background: #fdf2e4; color: #a36520; }
+.status-DISPOSED { background: #fbeae9; color: #a43a32; }
+
+/* Status phiếu mượn */
+.status-PENDING { background: #fff6df; color: #9c7722; }
+.status-APPROVED { background: #ebf5fa; color: #28719c; }
+.status-BORROWED { background: #edf7e8; color: #3c772c; }
+.status-RETURNED { background: #f0edf9; color: #69529e; }
+.status-CANCELLED { background: #f3f4f6; color: #6b7280; }
+.status-REJECTED { background: #faeae8; color: #b0433a; }
+
+/* Thanh tiến trình phiếu mượn 4 bước (Workflow Stepper) */
+.workflow-panel {
+    padding: 28px 32px 24px;
+    margin-bottom: 24px;
+}
+.stepper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: relative;
+    margin: 20px 0 10px;
+}
+.stepper::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 12%;
+    right: 12%;
+    height: 3px;
+    background: #e4e8ee;
+    z-index: 1;
+}
+.step-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.step-circle {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #e4e8ee;
+    color: #8c97a5;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 10px;
+    transition: all .2s;
+}
+.step-item.is-done .step-circle {
+    border-color: #618753;
+    background: #618753;
+    color: #fff;
+}
+.step-item.is-current .step-circle {
+    border-color: #242d3b;
+    background: #242d3b;
+    color: #fff;
+    box-shadow: 0 0 0 5px rgba(36, 45, 59, 0.12);
+}
+.step-item.is-cancelled .step-circle {
+    border-color: #c94c40;
+    background: #c94c40;
+    color: #fff;
+}
+.step-title {
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--ink);
+}
+.step-desc {
+    margin-top: 3px;
+    font-size: 11px;
+    color: #838e9d;
+}
+
+/* Form Layout (2 Columns) */
+.student-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 0.95fr);
+    gap: 24px;
+    align-items: start;
+}
+.student-form-panel {
+    padding: 28px 32px;
+}
+.form-field {
+    margin-bottom: 22px;
+}
+.form-field > label > span.req {
+    color: #c4473a;
+    margin-left: 2px;
+}
+.form-field input, .form-field select {
+    min-height: 42px;
+    padding: 10px 13px;
+}
+.form-field textarea {
+    padding: 12px 14px;
+    line-height: 1.6;
+    resize: vertical;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* Metadata List in Detail view */
+.metadata-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin: 0;
+    padding: 24px 28px;
+}
+.metadata-list dt {
+    color: #828d9c;
+    font-size: 11px;
+    font-weight: 500;
+}
+.metadata-list dd {
+    margin: 4px 0 0;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+.detail-section {
+    padding: 22px 28px;
+    border-top: 1px solid #edf0f3;
+}
+.detail-section h3 {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 650;
+    color: #556272;
+}
+.detail-section p {
+    color: #4b5563;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Notifications list */
+.notification-list {
+    display: flex;
+    flex-direction: column;
+}
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #edf0f3;
+    transition: background .15s;
+}
+.notification-item:hover {
+    background: #fcfdfb;
+}
+.notification-item:last-child {
+    border-bottom: none;
+}
+.notification-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sage);
+    color: #597a4d;
+    flex-shrink: 0;
+}
+.notification-body {
+    flex: 1;
+    min-width: 0;
+}
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 5px;
+}
+.notification-title {
+    font-size: 13px;
+    font-weight: 650;
+    color: var(--ink);
+}
+.notification-time {
+    color: #929ba7;
+    font-size: 11px;
+}
+.notification-msg {
+    color: #596575;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* Modal Popup hủy phiếu mượn (Pure CSS/JS) */
+.student-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.student-modal-card {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: modalSlideIn .2s ease-out;
+}
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.student-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+.student-modal-header h3 {
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--ink);
+}
+.student-modal-body {
+    padding: 24px;
+}
+.student-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: #fbfcfd;
+}
+
+/* Responsive */
+@media (max-width: 1199px) {
+    .student-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .student-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 767px) {
+    .student-stats {
+        grid-template-columns: 1fr;
+    }
+    .equipment-grid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+    .student-filters {
+        padding: 0 16px 18px;
+    }
+    .student-filters > div, .student-filters .filter-query {
+        flex: 1 1 100%;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .stepper {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    .stepper::before {
+        display: none;
+    }
+    .metadata-list {
+        grid-template-columns: 1fr;
+        padding: 18px 20px;
+    }
+}
+
+.status-ON_LOAN { background: #eaf0fb; color: #426aab; }

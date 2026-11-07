@@ -25,10 +25,10 @@ public class LoanRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
-    private LoanStatus status;
+    private LoanStatus status = LoanStatus.PENDING;
 
     @Column(name = "requested_at", nullable = false)
-    private LocalDateTime requestedAt;
+    private LocalDateTime requestedAt = LocalDateTime.now();
 
     @Column(name = "due_at", nullable = false)
     private LocalDateTime dueAt;
@@ -41,6 +41,72 @@ public class LoanRequest {
 
     @Column(name = "returned_at", nullable = true)
     private LocalDateTime returnedAt;
+
+    @Column(name = "request_code", length = 50, unique = true)
+    private String requestCode;
+
+    @Column(name = "borrow_date")
+    private LocalDateTime borrowDate = LocalDateTime.now();
+
+    @Nationalized
+    @Column(name = "purpose", length = 500)
+    private String purpose;
+
+    @Nationalized
+    @Column(name = "notes", length = 500)
+    private String notes;
+
+    @Nationalized
+    @Column(name = "cancel_reason", length = 500)
+    private String cancelReason;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    @Nationalized
+    @Column(name = "reject_reason", length = 500)
+    private String rejectReason;
+
+    @Nationalized
+    @Column(name = "staff_notes", length = 500)
+    private String staffNotes;
+
+    public LoanRequest() { }
+
+    public LoanRequest(String requestCode, User student, Equipment equipment, LocalDateTime dueAt, String purpose, String notes) {
+        this.requestCode = requestCode;
+        this.student = student;
+        this.equipment = equipment;
+        this.dueAt = dueAt;
+        this.purpose = purpose;
+        this.notes = notes;
+    }
+
+    public String getRequestCode() { return requestCode; }
+    public void setRequestCode(String requestCode) { this.requestCode = requestCode; }
+
+    public LocalDateTime getBorrowDate() { return borrowDate; }
+    public void setBorrowDate(LocalDateTime borrowDate) { this.borrowDate = borrowDate; }
+
+    public String getPurpose() { return purpose; }
+    public void setPurpose(String purpose) { this.purpose = purpose; }
+
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+
+    public String getCancelReason() { return cancelReason; }
+    public void setCancelReason(String cancelReason) { this.cancelReason = cancelReason; }
+
+    public LocalDateTime getCancelledAt() { return cancelledAt; }
+    public void setCancelledAt(LocalDateTime cancelledAt) { this.cancelledAt = cancelledAt; }
+
+    public String getRejectReason() { return rejectReason; }
+    public void setRejectReason(String rejectReason) { this.rejectReason = rejectReason; }
+
+    public String getStaffNotes() { return staffNotes; }
+    public void setStaffNotes(String staffNotes) { this.staffNotes = staffNotes; }
+
+    public boolean isCancellable() { return status == LoanStatus.PENDING; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

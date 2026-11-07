@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head>
+    <title>Đăng ký mượn thiết bị</title>
+</head>
+<body>
+<main id="main-content" class="page-content student-content" tabindex="-1">
+    <a class="student-back" th:href="@{/student/loans}">
+        <svg class="icon" style="width:14px;height:14px;transform:rotate(180deg);"><use href="#icon-arrow"/></svg>
+        Quay lại phiếu mượn của tôi
+    </a>
+
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">DÀNH CHO SINH VIÊN · ĐĂNG KÝ</p>
+            <h1>Tạo phiếu mượn thiết bị mới</h1>
+            <p class="page-description">Điền đầy đủ thông tin thiết bị, mục đích sử dụng và thời hạn mượn để gửi ban quản lý phòng Lab xét duyệt.</p>
+        </div>
+    </div>
+
+    <!-- Thông báo lỗi (nếu có) -->
+    <div th:if="${errorMessage}" class="student-alert alert-error">
+        <svg class="icon"><use href="#icon-close"/></svg>
+        <span th:text="${errorMessage}">Đã xảy ra lỗi</span>
+    </div>
+
+    <div class="student-form-grid">
+        <!-- Form đăng ký -->
+        <section class="panel student-form-panel">
+            <div class="panel-heading" style="padding:0 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px;">
+                <div>
+                    <h2>Thông tin phiếu mượn</h2>
+                    <p>Các trường có dấu sao đỏ (<span style="color:#c4473a;">*</span>) là bắt buộc</p>
+                </div>
+            </div>
+
+            <form th:action="@{/student/loans/create}" th:object="${loanRequestDto}" method="post">
+                <!-- Chọn thiết bị -->
+                <div class="form-field">
+                    <label for="deviceId">Thiết bị cần mượn <span class="req">*</span></label>
+                    <select id="deviceId" th:field="*{deviceId}" required>
+                        <option value="">-- Chọn thiết bị sẵn sàng --</option>
+                        <option th:each="dev : ${availableDevices}"
+                                th:value="${dev.id}"
+                                th:text="${dev.code + ' - ' + dev.name + ' (' + (dev.category != null ? dev.category.name : 'Chung') + ' · ' + dev.location + ')'}"
+                                th:selected="${loanRequestDto.deviceId == dev.id}">
+                        </option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('deviceId')}" th:errors="*{deviceId}" style="color:#c4473a; font-size:11px; margin-top:4px; display:block;"></span>
+                </div>
+
+                <!-- Thiết bị đã chọn (nếu chuyển từ trang chi tiết) -->
+                <div th:if="${selectedDevice != null}" class="student-alert alert-success" style="margin-bottom: 20px; padding: 12px 16px;">
+                    <svg class="icon"><use href="#icon-equipment"/></svg>
+                    <div>
+                        <strong th:text="${selectedDevice.name}">Thiết bị</strong>
+                        <span style="font-size:11px; display:block; color:#4d7042;" th:text="${'Mã: ' + selectedDevice.code + ' · Vị trí: ' + selectedDevice.location}"></span>
+                    </div>
+                </div>
+
+                <!-- Thời hạn mượn và dự kiến trả -->
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="borrowDate">Thời gian bắt đầu mượn <span class="req">*</span></label>
+                        <input id="borrowDate" type="datetime-local" th:field="*{borrowDate}" required>
+                        <span th:if="${#fields.hasErrors('borrowDate')}" th:errors="*{borrowDate}" style="color:#c4473a; font-size:11px; margin-top:4px; display:block;"></span>
+                    </div>
+                    <div class="form-field">
+                        <label for="dueAt">Thời gian dự kiến trả <span class="req">*</span></label>
+                        <input id="dueAt" type="datetime-local" th:field="*{dueAt}" required>
+                        <span th:if="${#fields.hasErrors('dueAt')}" th:errors="*{dueAt}" style="color:#c4473a; font-size:11px; margin-top:4px; display:block;"></span>
+                    </div>
+                </div>
+
+                <!-- Mục đích mượn -->
+                <div class="form-field">
+                    <label for="purpose">Mục đích mượn thiết bị <span class="req">*</span></label>
+                    <textarea id="purpose" rows="3" th:field="*{purpose}" required placeholder="Ví dụ: Phục vụ thực hành môn Lập trình nhúng / Làm đề tài đồ án tốt nghiệp..."></textarea>
+                    <span th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}" style="color:#c4473a; font-size:11px; margin-top:4px; display:block;"></span>
+                </div>
+
+                <!-- Ghi chú thêm -->
+                <div class="form-field">
+                    <label for="notes">Ghi chú bổ sung (nếu có)</label>
+                    <textarea id="notes" rows="2" th:field="*{notes}" placeholder="Ví dụ: Cần mượn thêm cáp kết nối USB / Dây nguồn đi kèm..."></textarea>
+                </div>
+
+                <!-- Nút thao tác -->
+                <div class="form-actions">
+                    <button class="button button-primary" type="submit">
+                        <svg class="icon"><use href="#icon-check"/></svg>Gửi yêu cầu mượn
+                    </button>
+                    <a class="button button-secondary" th:href="@{/student/loans}">Hủy bỏ</a>
+                </div>
+            </form>
+        </section>
+
+        <!-- Hướng dẫn & Quy định -->
+        <aside class="panel" style="padding: 28px;">
+            <div class="panel-heading" style="padding:0 0 18px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+                <div>
+                    <h2>Quy trình xét duyệt</h2>
+                    <p>Các bước xử lý mượn thiết bị</p>
+                </div>
+            </div>
+
+            <ol style="margin: 0; padding-left: 20px; color: #536071; font-size: 13px; line-height: 2;">
+                <li><strong>Gửi yêu cầu:</strong> Phiếu mượn sẽ ở trạng thái <span class="status-badge status-PENDING">Chờ duyệt</span>.</li>
+                <li><strong>Cán bộ phê duyệt:</strong> Cán bộ quản lý kiểm tra và duyệt phiếu (<span class="status-badge status-APPROVED">Đã duyệt</span>).</li>
+                <li><strong>Nhận thiết bị:</strong> Đến trực tiếp phòng Lab nhận thiết bị (<span class="status-badge status-BORROWED">Đang mượn</span>).</li>
+                <li><strong>Hoàn trả:</strong> Bàn giao lại thiết bị đúng hẹn và nhận xác nhận hoàn tất (<span class="status-badge status-RETURNED">Đã trả</span>).</li>
+            </ol>
+
+            <div style="margin-top: 24px; padding: 16px; border-radius: 9px; background: #f7f9fb; border: 1px solid #e7ecf2;">
+                <strong style="color: #3b4657; font-size: 12px; display: block; margin-bottom: 6px;">Quy định quan trọng:</strong>
+                <p style="margin: 0; color: #6a7686; font-size: 12px; line-height: 1.7;">
+                    Nếu chưa được duyệt, bạn có thể chủ động hủy phiếu mượn bất kỳ lúc nào tại danh sách phiếu mượn của mình.
+                </p>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

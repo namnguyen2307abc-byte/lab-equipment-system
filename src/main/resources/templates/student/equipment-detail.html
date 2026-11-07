@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head>
+    <title>Chi tiết thiết bị</title>
+</head>
+<body>
+<main id="main-content" class="page-content student-content" tabindex="-1">
+    <a class="student-back" th:href="@{/student/equipment}">
+        <svg class="icon" style="width:14px;height:14px;transform:rotate(180deg);"><use href="#icon-arrow"/></svg>
+        Quay lại danh mục thiết bị
+    </a>
+
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow" th:text="${'MÃ THIẾT BỊ: ' + device.code}">MÃ THIẾT BỊ</p>
+            <h1 th:text="${device.name}">Tên thiết bị</h1>
+            <p class="page-description">Xem chi tiết thông số kỹ thuật, cấu hình, vị trí phòng Lab và tình trạng sử dụng.</p>
+        </div>
+        <div>
+            <span class="status-badge" th:classappend="${'status-' + device.status.name()}" th:text="${device.status.label}">Sẵn sàng</span>
+        </div>
+    </div>
+
+    <div class="student-form-grid">
+        <!-- Thông tin chi tiết thiết bị -->
+        <section class="panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Thông số &amp; Cấu hình thiết bị</h2>
+                    <p>Dữ liệu kỹ thuật lưu trữ tại hệ thống quản lý phòng Lab</p>
+                </div>
+            </div>
+
+            <dl class="metadata-list">
+                <div>
+                    <dt>Mã định danh</dt>
+                    <dd th:text="${device.code}">CODE</dd>
+                </div>
+                <div>
+                    <dt>Danh mục thiết bị</dt>
+                    <dd th:text="${device.category != null ? device.category.name : 'Chung'}">Danh mục</dd>
+                </div>
+                <div>
+                    <dt>Vị trí lưu trữ</dt>
+                    <dd th:text="${device.location}">Phòng Lab</dd>
+                </div>
+                <div>
+                    <dt>Tình trạng hiện tại</dt>
+                    <dd><span class="status-badge" th:classappend="${'status-' + device.status.name()}" th:text="${device.status.label}">Sẵn sàng</span></dd>
+                </div>
+            </dl>
+
+            <div class="detail-section">
+                <h3>Thông số kỹ thuật chi tiết</h3>
+                <p class="preserve-lines" th:text="${device.specifications != null and !device.specifications.isEmpty() ? device.specifications : 'Chưa có thông số kỹ thuật bổ sung cho thiết bị này.'}"></p>
+            </div>
+
+            <div class="detail-section" th:if="${device.category != null and device.category.description != null}">
+                <h3>Mô tả danh mục</h3>
+                <p th:text="${device.category.description}"></p>
+            </div>
+        </section>
+
+        <!-- Thao tác đăng ký & Quy định phòng Lab -->
+        <aside class="panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Đăng ký mượn thiết bị</h2>
+                    <p>Khởi tạo phiếu mượn phục vụ nghiên cứu</p>
+                </div>
+            </div>
+
+            <div style="padding: 0 24px 24px;">
+                <div th:if="${device.status.name() == 'AVAILABLE'}" class="student-alert alert-success" style="margin-bottom: 20px;">
+                    <svg class="icon"><use href="#icon-check"/></svg>
+                    <div>
+                        <strong>Thiết bị đang sẵn sàng!</strong>
+                        <p style="margin-top: 4px; font-size: 12px;">Bạn có thể đăng ký mượn ngay bây giờ để được ban quản lý phòng Lab phê duyệt.</p>
+                    </div>
+                </div>
+
+                <div th:unless="${device.status.name() == 'AVAILABLE'}" class="student-alert alert-error" style="margin-bottom: 20px;">
+                    <svg class="icon"><use href="#icon-close"/></svg>
+                    <div>
+                        <strong>Thiết bị hiện chưa thể mượn</strong>
+                        <p style="margin-top: 4px; font-size: 12px;" th:text="${'Hiện tại thiết bị đang ở trạng thái ' + device.status.label + '. Vui lòng quay lại sau.'}"></p>
+                    </div>
+                </div>
+
+                <a th:if="${device.status.name() == 'AVAILABLE'}" class="button button-primary" style="width: 100%;" th:href="@{/student/loans/create(deviceId=${device.id})}">
+                    <svg class="icon"><use href="#icon-arrow"/></svg>Đăng ký mượn thiết bị này
+                </a>
+
+                <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border);">
+                    <h3 style="font-size: 12px; font-weight: 650; color: #556272; margin-bottom: 10px;">Lưu ý mượn thiết bị:</h3>
+                    <ul style="margin: 0; padding-left: 18px; color: #647182; font-size: 12px; line-height: 1.8;">
+                        <li>Kiểm tra kỹ tình trạng ngoại quan khi nhận thiết bị.</li>
+                        <li>Chỉ sử dụng đúng mục đích học tập hoặc đồ án nghiên cứu.</li>
+                        <li>Hoàn trả đúng thời hạn cam kết để không ảnh hưởng đến sinh viên khác.</li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

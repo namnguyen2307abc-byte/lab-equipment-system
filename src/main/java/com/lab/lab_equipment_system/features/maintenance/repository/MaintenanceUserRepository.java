@@ -7,5 +7,6 @@ import java.util.*;
 
 public interface MaintenanceUserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailIgnoreCase(String email);
+    Optional<User> findByUsernameIgnoreCase(String username);
 }
 
