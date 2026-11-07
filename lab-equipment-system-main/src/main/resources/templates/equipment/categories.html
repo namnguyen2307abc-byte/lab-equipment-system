@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment', ~{::main})}">
+<head>
+    <title>Quản lý loại thiết bị · LabSpace</title>
+</head>
+<body>
+<main id="main-content" class="page-content">
+    <link rel="stylesheet" th:href="@{/css/equipment.css}">
+
+    <div class="equipment-container">
+        <!-- Flash messages -->
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <svg class="icon"><use href="#icon-check"/></svg>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error" role="alert">
+            <svg class="icon"><use href="#icon-close"/></svg>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Heading -->
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">DANH MỤC THIẾT BỊ · PHÂN LOẠI</p>
+                <h1>Quản lý loại thiết bị</h1>
+                <p class="page-description">Phân loại các dòng thiết bị trong phòng lab (Arduino, ESP32, Raspberry Pi, cảm biến, máy đo...).</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a th:href="@{/equipment}" class="button button-secondary">
+                    <span>&larr; Danh sách thiết bị</span>
+                </a>
+                <a th:href="@{/equipment/categories/new}" class="button button-primary">
+                    <svg class="icon"><use href="#icon-arrow"/></svg>
+                    <span>+ Thêm loại mới</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <!-- Left: Category List -->
+            <div class="panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>Danh sách loại thiết bị</h2>
+                        <p>Hiện có <strong th:text="${categories.size()}">0</strong> danh mục</p>
+                    </div>
+                </div>
+
+                <div class="table-scroll">
+                    <table class="requests-table category-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 180px;">Tên loại thiết bị</th>
+                            <th>Mô tả</th>
+                            <th style="width: 100px; text-align: center;">Số thiết bị</th>
+                            <th style="width: 130px; text-align: center;">Thao tác</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${categories.empty}">
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <div class="empty-icon"><svg class="icon"><use href="#icon-overview"/></svg></div>
+                                    <h3>Chưa có loại thiết bị nào</h3>
+                                    <p>Hãy tạo loại thiết bị đầu tiên ở biểu mẫu bên cạnh.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="cat : ${categories}">
+                            <td>
+                                <strong th:text="${cat.name}" style="font-weight: 650; color: var(--ink);">Arduino</strong>
+                            </td>
+                            <td>
+                                <span th:text="${cat.description != null and !cat.description.empty ? cat.description : '—'}"
+                                      style="color: var(--muted); font-size: 12px;">Board mạch vi điều khiển...</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span class="badge badge-available" th:text="${cat.deviceCount + ' thiết bị'}">5 thiết bị</span>
+                            </td>
+                            <td>
+                                <div class="table-actions" style="justify-content: center;">
+                                    <!-- Edit Trigger Button -->
+                                    <button type="button" class="button btn-outline btn-sm"
+                                            th:onclick="'populateEditModal(' + ${cat.id} + ', \'' + ${#strings.escapeJavaScript(cat.name)} + '\', \'' + ${#strings.escapeJavaScript(cat.description != null ? cat.description : '')} + '\')'">
+                                        Sửa
+                                    </button>
+                                    <!-- Delete Form -->
+                                    <form th:action="@{'/equipment/categories/' + ${cat.id} + '/delete'}" method="post"
+                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa loại thiết bị này không?');"
+                                          style="margin: 0;">
+                                        <button type="submit" class="button btn-danger-outline btn-sm"
+                                                th:disabled="${cat.deviceCount > 0}"
+                                                th:title="${cat.deviceCount > 0 ? 'Không thể xóa loại đang có thiết bị' : 'Xóa loại này'}">
+                                            Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Add / Edit Form Card -->
+            <div>
+                <div class="panel" style="padding: 24px;">
+                    <div style="margin-bottom: 20px;">
+                        <h2 id="form-title" style="font-size: 16px; font-weight: 650;">+ Thêm loại thiết bị mới</h2>
+                        <p style="color: var(--muted); font-size: 12px; margin-top: 4px;">Tạo nhóm phân loại mới cho thiết bị phòng thí nghiệm</p>
+                    </div>
+
+                    <form id="categoryForm" th:action="@{/equipment/categories}" th:object="${categoryRequest}" method="post">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="cat-name" class="form-label form-label-required">Tên loại thiết bị</label>
+                            <input type="text" id="cat-name" th:field="*{name}" class="form-control"
+                                   placeholder="Ví dụ: Arduino, ESP32, Cảm biến..."
+                                   th:classappend="${#fields.hasErrors('name') ? 'is-invalid' : ''}">
+                            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="field-error"></span>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="cat-desc" class="form-label">Mô tả loại thiết bị</label>
+                            <textarea id="cat-desc" th:field="*{description}" class="form-textarea" rows="4"
+                                      placeholder="Mô tả công dụng hoặc phạm vi ứng dụng trong phòng thực hành..."></textarea>
+                            <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="field-error"></span>
+                        </div>
+
+                        <div style="display: flex; gap: 8px;">
+                            <button type="submit" id="btn-submit-cat" class="button button-primary" style="flex: 1;">
+                                <span>Thêm loại thiết bị</span>
+                            </button>
+                            <button type="button" id="btn-cancel-edit" class="button button-secondary" style="display: none;"
+                                    onclick="resetFormToCreate()">
+                                <span>Hủy</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to toggle edit mode in the category form -->
+    <script>
+        function populateEditModal(id, name, description) {
+            var form = document.getElementById('categoryForm');
+            var title = document.getElementById('form-title');
+            var btnSubmit = document.getElementById('btn-submit-cat');
+            var btnCancel = document.getElementById('btn-cancel-edit');
+            var nameInput = document.getElementById('cat-name');
+            var descInput = document.getElementById('cat-desc');
+
+            form.action = '/equipment/categories/' + id;
+            title.innerText = 'Chỉnh sửa loại thiết bị';
+            btnSubmit.innerHTML = '<span>Lưu thay đổi</span>';
+            btnCancel.style.display = 'inline-flex';
+
+            nameInput.value = name;
+            descInput.value = description;
+            nameInput.focus();
+        }
+
+        function resetFormToCreate() {
+            var form = document.getElementById('categoryForm');
+            var title = document.getElementById('form-title');
+            var btnSubmit = document.getElementById('btn-submit-cat');
+            var btnCancel = document.getElementById('btn-cancel-edit');
+            var nameInput = document.getElementById('cat-name');
+            var descInput = document.getElementById('cat-desc');
+
+            form.action = '/equipment/categories';
+            title.innerText = '+ Thêm loại thiết bị mới';
+            btnSubmit.innerHTML = '<span>Thêm loại thiết bị</span>';
+            btnCancel.style.display = 'none';
+
+            nameInput.value = '';
+            descInput.value = '';
+        }
+    </script>
+</main>
+</body>
+</html>
