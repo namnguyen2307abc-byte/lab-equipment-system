@@ -43,11 +43,13 @@ public class DataInitializer implements CommandLineRunner {
         String defaultHashedPassword = passwordEncoder.encode("123456");
 
         User student1 = new User("student", defaultHashedPassword, "Nguy\u1ec5n V\u0103n Ng\u1ecdc", "ngoc.nv@fpt.edu.vn", "0912345678", Role.STUDENT);
+        User studentVien = new User("sinhvien", defaultHashedPassword, "Nguy\u1ec5n V\u0103n Ng\u1ecdc", "sinhvien@fpt.edu.vn", "0912345678", Role.STUDENT);
         User student2 = new User("student2", defaultHashedPassword, "Tr\u1ea7n Th\u1ecb Mai", "mai.tt@fpt.edu.vn", "0987654321", Role.STUDENT);
         User staff = new User("staff", defaultHashedPassword, "L\u00ea Ho\u00e0ng H\u1ea3i", "hai.lh@fpt.edu.vn", "0901234567", Role.STAFF);
         User admin = new User("admin", defaultHashedPassword, "Qu\u1ea3n Tr\u1ecb Vi\u00ean", "admin@fpt.edu.vn", "0999999999", Role.ADMIN);
 
         userRepository.save(student1);
+        userRepository.save(studentVien);
         userRepository.save(student2);
         userRepository.save(staff);
         userRepository.save(admin);
