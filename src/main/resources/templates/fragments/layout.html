@@ -7,6 +7,12 @@
     <meta name="theme-color" content="#171d2f">
     <title th:text="${pageTitle} + ' · LabSpace'">LabSpace</title>
     <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
+<<<<<<< HEAD
+=======
+    <link rel="stylesheet" th:if="${activeMenu != 'maintenance'}" th:href="@{/css/student.css}">
+    <link rel="stylesheet" th:if="${activeMenu == 'maintenance'}" th:href="@{/css/maintenance.css}">
+    <script th:if="${activeMenu == 'maintenance'}" th:src="@{/js/maintenance.js}" defer></script>
+>>>>>>> f4170c2d209c40d5cb30819debc5259c7fe046ab
     <script src="/js/app.js" th:src="@{/js/app.js}" defer></script>
 </head>
 <body>

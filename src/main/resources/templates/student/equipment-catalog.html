@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head>
+    <title>Danh mục thiết bị</title>
+</head>
+<body>
+<main id="main-content" class="page-content student-content" tabindex="-1">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">DÀNH CHO SINH VIÊN · QUẢN LÝ THIẾT BỊ</p>
+            <h1>Danh mục thiết bị phòng Lab</h1>
+            <p class="page-description">Tra cứu thông số kỹ thuật, tình trạng sẵn sàng và đăng ký mượn thiết bị phục vụ học tập, nghiên cứu.</p>
+        </div>
+        <a class="button button-primary" th:href="@{/student/loans/create}">
+            <svg class="icon"><use href="#icon-arrow"/></svg>Đăng ký mượn thiết bị
+        </a>
+    </div>
+
+    <!-- Thông báo kết quả thao tác -->
+    <div th:if="${successMessage}" class="student-alert alert-success">
+        <svg class="icon"><use href="#icon-check"/></svg>
+        <span th:text="${successMessage}">Thao tác thành công</span>
+    </div>
+    <div th:if="${errorMessage}" class="student-alert alert-error">
+        <svg class="icon"><use href="#icon-close"/></svg>
+        <span th:text="${errorMessage}">Đã xảy ra lỗi</span>
+    </div>
+
+    <!-- Thống kê trạng thái thiết bị -->
+    <section class="student-stats" aria-label="Thống kê thiết bị">
+        <article>
+            <span>Tổng thiết bị</span>
+            <strong th:text="${totalDevices}">0</strong>
+            <small>Toàn bộ tài sản phòng Lab</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#558f44;"></span>Sẵn sàng mượn</span>
+            <strong th:text="${availableDevices}">0</strong>
+            <small>Đang có sẵn tại phòng thực hành</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#4178b5;"></span>Đang được mượn</span>
+            <strong th:text="${inUseDevices}">0</strong>
+            <small>Sinh viên / giảng viên đang mượn</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#c4832e;"></span>Đang bảo trì</span>
+            <strong th:text="${maintenanceDevices}">0</strong>
+            <small>Đang kiểm tra, sửa chữa định kỳ</small>
+        </article>
+    </section>
+
+    <!-- Panel bộ lọc tìm kiếm -->
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Tìm kiếm &amp; Lọc thiết bị</h2>
+                <p>Nhập từ khóa mã, tên thiết bị hoặc chọn theo danh mục phù hợp</p>
+            </div>
+            <span class="preview-badge" th:text="${devices.size() + ' thiết bị'}">0 thiết bị</span>
+        </div>
+
+        <form class="student-filters" method="get" th:action="@{/student/equipment}">
+            <div class="filter-query">
+                <label for="keyword">Từ khóa tìm kiếm</label>
+                <input id="keyword" name="keyword" type="search" maxlength="100" th:value="${selectedKeyword}" placeholder="Nhập tên hoặc mã thiết bị (VD: ARD, ESP, Máy hiện sóng...)">
+            </div>
+            <div>
+                <label for="categoryId">Danh mục thiết bị</label>
+                <select id="categoryId" name="categoryId">
+                    <option value="">Tất cả danh mục</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}" th:selected="${selectedCategoryId == cat.id}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="status">Tình trạng</label>
+                <select id="status" name="status">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="st : ${statuses}" th:value="${st.name()}" th:text="${st.label}" th:selected="${selectedStatus == st}"></option>
+                </select>
+            </div>
+            <button class="button button-primary" type="submit">Tìm kiếm</button>
+            <a class="filter-reset" th:href="@{/student/equipment}">Bỏ lọc</a>
+        </form>
+
+        <!-- Danh sách thiết bị dạng lưới thẻ (Cards Grid) -->
+        <div class="equipment-grid" th:if="${!devices.empty}">
+            <article class="equipment-card" th:each="device : ${devices}">
+                <div class="equipment-card-header">
+                    <div>
+                        <span class="equipment-code" th:text="${device.code}">CODE</span>
+                        <h3 class="equipment-name" th:text="${device.name}">Tên thiết bị</h3>
+                        <span class="equipment-category" th:text="${device.category != null ? device.category.name : 'Chung'}">Danh mục</span>
+                    </div>
+                    <span class="status-badge" th:classappend="${'status-' + device.status.name()}" th:text="${device.status.label}">Sẵn sàng</span>
+                </div>
+
+                <p class="equipment-specs" th:text="${device.specifications != null and !device.specifications.isEmpty() ? device.specifications : 'Chưa có thông số chi tiết.'}">Thông số kỹ thuật</p>
+
+                <div class="equipment-location">
+                    <svg class="icon" style="width:14px;height:14px;"><use href="#icon-overview"/></svg>
+                    <span>Vị trí: <strong th:text="${device.location}">Phòng Lab</strong></span>
+                </div>
+
+                <div class="equipment-card-actions">
+                    <a class="button button-secondary" th:href="@{/student/equipment/{id}(id=${device.id})}">
+                        Xem chi tiết
+                    </a>
+                    <a th:if="${device.status.name() == 'AVAILABLE'}" class="button button-primary" th:href="@{/student/loans/create(deviceId=${device.id})}">
+                        <svg class="icon"><use href="#icon-arrow"/></svg>Mượn ngay
+                    </a>
+                </div>
+            </article>
+        </div>
+
+        <!-- Trạng thái trống (Empty State) -->
+        <div class="empty-state" th:if="${devices.empty}">
+            <span class="empty-icon"><svg class="icon"><use href="#icon-equipment"/></svg></span>
+            <h3>Không tìm thấy thiết bị phù hợp</h3>
+            <p>Vui lòng thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc để hiển thị toàn bộ thiết bị.</p>
+        </div>
+    </section>
+</main>
+</body>
+</html>

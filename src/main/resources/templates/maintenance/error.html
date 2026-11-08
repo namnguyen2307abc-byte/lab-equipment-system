@@ -1,0 +1,3 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head><title>Không thể thực hiện thao tác</title></head><body><main id="main-content" class="page-content maintenance-content" tabindex="-1"><section class="panel maintenance-error"><span class="eyebrow" th:text="${'THÔNG BÁO · ' + errorCode}"></span><h1>Không thể thực hiện thao tác</h1><p th:text="${errorMessage}"></p><a class="button button-primary" th:href="@{/maintenance}">Về danh sách phiếu</a></section></main></body></html>

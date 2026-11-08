@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head>
+    <title>Phiếu mượn của tôi</title>
+</head>
+<body>
+<main id="main-content" class="page-content student-content" tabindex="-1">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">DÀNH CHO SINH VIÊN · THEO DÕI</p>
+            <h1>Phiếu mượn của tôi</h1>
+            <p class="page-description">Theo dõi trạng thái, tiến trình phê duyệt và lịch sử các phiếu đăng ký mượn thiết bị cá nhân.</p>
+        </div>
+        <a class="button button-primary" th:href="@{/student/loans/create}">
+            <svg class="icon"><use href="#icon-arrow"/></svg>Đăng ký mượn thiết bị
+        </a>
+    </div>
+
+    <!-- Thông báo kết quả thao tác -->
+    <div th:if="${successMessage}" class="student-alert alert-success">
+        <svg class="icon"><use href="#icon-check"/></svg>
+        <span th:text="${successMessage}">Thao tác thành công</span>
+    </div>
+    <div th:if="${errorMessage}" class="student-alert alert-error">
+        <svg class="icon"><use href="#icon-close"/></svg>
+        <span th:text="${errorMessage}">Đã xảy ra lỗi</span>
+    </div>
+
+    <!-- Thống kê phiếu mượn cá nhân -->
+    <section class="student-stats" aria-label="Thống kê phiếu mượn">
+        <article>
+            <span>Tổng phiếu mượn</span>
+            <strong th:text="${totalLoans}">0</strong>
+            <small>Tất cả phiếu bạn đã đăng ký</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#d9a538;"></span>Chờ duyệt</span>
+            <strong th:text="${pendingLoans}">0</strong>
+            <small>Đang chờ cán bộ phòng Lab duyệt</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#497db5;"></span>Đang mượn</span>
+            <strong th:text="${borrowedLoans}">0</strong>
+            <small>Thiết bị bạn đang giữ sử dụng</small>
+        </article>
+        <article>
+            <span><span class="status-dot" style="background:#59944a;"></span>Đã hoàn tất</span>
+            <strong th:text="${returnedLoans}">0</strong>
+            <small>Đã bàn giao lại thiết bị an toàn</small>
+        </article>
+    </section>
+
+    <!-- Panel danh sách phiếu -->
+    <section class="panel">
+        <div class="panel-heading">
+            <div>
+                <h2>Lịch sử phiếu mượn</h2>
+                <p>Thông tin phiếu mượn mới nhất hiển thị trên cùng</p>
+            </div>
+            <span class="preview-badge" th:text="${loans.size() + ' phiếu'}">0 phiếu</span>
+        </div>
+
+        <!-- Bộ lọc trạng thái -->
+        <form class="student-filters" method="get" th:action="@{/student/loans}">
+            <div>
+                <label for="status">Lọc theo trạng thái</label>
+                <select id="status" name="status">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="st : ${statuses}"
+                            th:value="${st.name()}"
+                            th:text="${st.label}"
+                            th:selected="${selectedStatus == st}">
+                    </option>
+                </select>
+            </div>
+            <button class="button button-primary" type="submit">Lọc phiếu</button>
+            <a class="filter-reset" th:href="@{/student/loans}">Bỏ lọc</a>
+        </form>
+
+        <!-- Bảng danh sách phiếu mượn -->
+        <div class="table-scroll" th:if="${!loans.empty}">
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Mã phiếu</th>
+                        <th scope="col">Thiết bị mượn</th>
+                        <th scope="col">Thời gian mượn</th>
+                        <th scope="col">Hạn dự kiến trả</th>
+                        <th scope="col">Trạng thái</th>
+                        <th scope="col" style="text-align: right;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="loan : ${loans}">
+                        <td>
+                            <a class="ticket-code" th:href="@{/student/loans/{id}(id=${loan.id})}" th:text="${loan.requestCode}">REQ-000</a>
+                            <small style="display:block; color:#8c95a0; font-size:10px;" th:text="${#temporals.format(loan.requestedAt, 'dd/MM/yyyy HH:mm')}"></small>
+                        </td>
+                        <td>
+                            <strong th:text="${loan.equipment != null ? loan.equipment.name : 'Thiết bị'}">Tên thiết bị</strong>
+                            <small style="display:block; color:#8c95a0; font-size:11px;" th:text="${loan.equipment != null ? loan.equipment.code + ' · ' + loan.equipment.location : ''}"></small>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(loan.borrowDate, 'dd/MM/yyyy HH:mm')}">--</span>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(loan.dueAt, 'dd/MM/yyyy HH:mm')}">--</span>
+                        </td>
+                        <td>
+                            <span class="status-badge" th:classappend="${'status-' + loan.status.name()}" th:text="${loan.status.label}">Chờ duyệt</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="table-actions" style="justify-content: flex-end;">
+                                <a class="button button-secondary" style="min-height:30px; padding:6px 12px; font-size:11px;" th:href="@{/student/loans/{id}(id=${loan.id})}">
+                                    Chi tiết
+                                </a>
+                                <button th:if="${loan.status.name() == 'PENDING'}"
+                                        type="button"
+                                        class="button"
+                                        style="min-height:30px; padding:6px 12px; font-size:11px; background:#fdeeed; color:#b33d34; border-color:#f8d4d1;"
+                                        th:onclick="openCancelModal([[${loan.id}]], [[${loan.requestCode}]])">
+                                    Hủy phiếu
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Trạng thái trống (Empty State) -->
+        <div class="empty-state" th:if="${loans.empty}">
+            <span class="empty-icon"><svg class="icon"><use href="#icon-loans"/></svg></span>
+            <h3>Chưa có phiếu mượn nào</h3>
+            <p>Bạn chưa có phiếu mượn nào ở mục này. Hãy đăng ký mượn thiết bị để bắt đầu trải nghiệm tại phòng Lab.</p>
+            <a class="button button-primary" style="margin-top: 14px;" th:href="@{/student/loans/create}">
+                <svg class="icon"><use href="#icon-arrow"/></svg>Tạo phiếu mượn ngay
+            </a>
+        </div>
+    </section>
+
+    <!-- Modal Popup Hủy Phiếu Mượn (UC-EM-07) -->
+    <div id="cancelModal" class="student-modal-overlay" style="display: none;">
+        <div class="student-modal-card">
+            <div class="student-modal-header">
+                <h3 id="modalTitle">Xác nhận hủy phiếu mượn</h3>
+                <button type="button" class="icon-button" onclick="closeCancelModal()" aria-label="Đóng">
+                    <svg class="icon"><use href="#icon-close"/></svg>
+                </button>
+            </div>
+            <form th:action="@{/student/loans/cancel}" method="post">
+                <div class="student-modal-body">
+                    <input type="hidden" id="modalLoanId" name="loanId" value="">
+                    <p style="color:#576273; font-size:13px; line-height:1.6; margin-bottom: 16px;">
+                        Bạn có chắc chắn muốn hủy phiếu mượn <strong id="modalLoanCode" style="color:#202838;"></strong> không? Hành động này sẽ không thể khôi phục.
+                    </p>
+                    <div class="form-field" style="margin-bottom: 0;">
+                        <label for="cancelReason">Lý do hủy phiếu mượn <span class="req">*</span></label>
+                        <textarea id="cancelReason" name="cancelReason" rows="3" required placeholder="Nhập lý do bạn muốn hủy yêu cầu mượn thiết bị này..."></textarea>
+                    </div>
+                </div>
+                <div class="student-modal-footer">
+                    <button type="button" class="button button-secondary" onclick="closeCancelModal()">Đóng</button>
+                    <button type="submit" class="button" style="background:#c4473a; color:#fff; border-color:#c4473a;">
+                        <svg class="icon"><use href="#icon-check"/></svg>Xác nhận hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    function openCancelModal(loanId, loanCode) {
+        document.getElementById('modalLoanId').value = loanId;
+        document.getElementById('modalLoanCode').textContent = loanCode;
+        document.getElementById('cancelReason').value = '';
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+    function closeCancelModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+    }
+    window.addEventListener('click', function(e) {
+        const modal = document.getElementById('cancelModal');
+        if (e.target === modal) closeCancelModal();
+    });
+</script>
+</body>
+</html>

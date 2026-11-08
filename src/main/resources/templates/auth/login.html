@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#171d2f">
+    <title>Đăng nhập · LabSpace</title>
+    <link rel="stylesheet" href="/css/app.css" th:href="@{/css/app.css}">
+    <link rel="stylesheet" href="/css/student.css" th:href="@{/css/student.css}">
+    <style>
+        body {
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            background: #171d2f;
+            padding: 24px;
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 440px;
+            width: 100%;
+            padding: 36px 32px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.3);
+        }
+        .login-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 26px;
+            font-weight: 700;
+            color: #171d2f;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+        }
+        .login-brand-dot {
+            color: #6bb35f;
+        }
+        .demo-account-chip {
+            display: inline-block;
+            margin: 4px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background: #edf3e9;
+            color: #3b5a32;
+            font-size: 11px;
+            cursor: pointer;
+            border: 1px solid #dbe6d4;
+            transition: background .15s;
+        }
+        .demo-account-chip:hover {
+            background: #ddead4;
+        }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div style="text-align: center;">
+        <div class="login-brand">
+            <span>labspace<span class="login-brand-dot">.</span></span>
+        </div>
+        <h2 style="font-size: 20px; font-weight: 650; color: #202838; margin-bottom: 6px;">Đăng nhập hệ thống</h2>
+        <p style="color: #737c8a; font-size: 13px; margin-bottom: 24px;">Hệ thống quản lý mượn trả &amp; bảo trì thiết bị phòng Lab</p>
+    </div>
+
+    <!-- Thông báo lỗi hoặc thành công -->
+    <div th:if="${errorMessage}" class="student-alert alert-error" style="margin-bottom: 18px; padding: 10px 14px;">
+        <svg class="icon"><use href="#icon-close"/></svg>
+        <span th:text="${errorMessage}">Tên đăng nhập hoặc mật khẩu không đúng</span>
+    </div>
+    <div th:if="${successMessage}" class="student-alert alert-success" style="margin-bottom: 18px; padding: 10px 14px;">
+        <svg class="icon"><use href="#icon-check"/></svg>
+        <span th:text="${successMessage}">Đã đăng xuất thành công</span>
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="form-field">
+            <label for="username">Tên đăng nhập</label>
+            <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập hoặc email" required autofocus>
+        </div>
+
+        <div class="form-field" style="margin-bottom: 26px;">
+            <label for="password">Mật khẩu</label>
+            <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+        </div>
+
+        <button type="submit" class="button button-primary" style="width: 100%; min-height: 44px; font-size: 13px;">
+            Đăng nhập ngay
+        </button>
+    </form>
+
+
+</div>
+
+
+</body>
+</html>
