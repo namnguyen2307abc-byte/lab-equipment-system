@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <aside id="app-sidebar" class="app-sidebar" th:fragment="sidebar(activeMenu)" aria-label="Điều hướng chính">
     <div class="sidebar-brand-row">
@@ -46,6 +46,12 @@
            th:classappend="${activeMenu == 'processing' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'processing' ? 'page' : null}">
             <svg class="icon"><use href="#icon-processing"/></svg><span>Xử lý mượn trả</span><span class="nav-active-dot"></span>
+        </a>
+        <div class="nav-divider" sec:authorize="hasRole('ADMIN')"></div>
+        <a class="nav-link" href="/admin/accounts" th:href="@{/admin/accounts}" sec:authorize="hasRole('ADMIN')"
+           th:classappend="${activeMenu == 'accounts' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'accounts' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-processing"/></svg><span>Quản lý tài khoản</span><span class="nav-active-dot"></span>
         </a>
     </nav>
     <div class="sidebar-bottom">
