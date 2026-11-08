@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: layout('Quản lý thiết bị', 'equipment-management', ~{::main})}">
+<head>
+    <title>Quản lý thiết bị · LabSpace</title>
+</head>
+<body>
+<main id="main-content" class="page-content">
+    <link rel="stylesheet" th:href="@{/css/equipment.css}">
+
+    <div class="equipment-container">
+        <!-- Flash messages -->
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <svg class="icon"><use href="#icon-check"/></svg>
+            <span th:text="${successMessage}"></span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-error" role="alert">
+            <svg class="icon"><use href="#icon-close"/></svg>
+            <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- Page Heading -->
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">MODULE 2.0 · THÀNH VIÊN 2</p>
+                <h1>Danh mục & Quản lý thiết bị</h1>
+                <p class="page-description">Theo dõi từng thiết bị vật lý, phân loại, thông số kỹ thuật và trạng thái sử dụng.</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a th:href="@{/equipment/categories/new}" class="button button-secondary" title="Thêm nhanh một loại thiết bị mới">
+                    <svg class="icon"><use href="#icon-spark"/></svg>
+                    <span>+ Thêm loại thiết bị</span>
+                </a>
+                <a th:href="@{/equipment/categories}" class="button button-secondary" title="Xem danh sách và quản lý các loại thiết bị">
+                    <svg class="icon"><use href="#icon-overview"/></svg>
+                    <span>Quản lý loại</span>
+                </a>
+                <a th:href="@{/equipment/new}" class="button button-primary">
+                    <svg class="icon"><use href="#icon-arrow"/></svg>
+                    <span>+ Thêm thiết bị</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <section class="stats-grid" aria-label="Thống kê trạng thái thiết bị">
+            <article class="stat-card">
+                <div>
+                    <p>Tổng thiết bị</p>
+                    <strong><span th:text="${totalCount}">0</span> <span>thiết bị</span></strong>
+                    <span class="stat-note">Trong toàn phòng lab</span>
+                </div>
+                <span class="stat-icon sage"><svg class="icon"><use href="#icon-equipment"/></svg></span>
+            </article>
+            <article class="stat-card">
+                <div>
+                    <p>Sẵn sàng cho mượn</p>
+                    <strong style="color: #276738;"><span th:text="${availableCount}">0</span> <span>thiết bị</span></strong>
+                    <span class="stat-note">Khả dụng ngay lập tức</span>
+                </div>
+                <span class="stat-icon sage"><svg class="icon"><use href="#icon-check"/></svg></span>
+            </article>
+            <article class="stat-card">
+                <div>
+                    <p>Đang mượn / Bảo trì</p>
+                    <strong>
+                        <span th:text="${borrowedCount}">0</span>
+                        <span style="font-size: 14px; font-weight: normal; margin: 0 4px;">/</span>
+                        <span th:text="${maintenanceCount}">0</span>
+                        <span>mượn/sửa</span>
+                    </strong>
+                    <span class="stat-note">Sinh viên giữ hoặc đang sửa</span>
+                </div>
+                <span class="stat-icon peach"><svg class="icon"><use href="#icon-maintenance"/></svg></span>
+            </article>
+        </section>
+
+        <!-- Filter & Search Card -->
+        <div class="filter-card">
+            <form th:action="@{/equipment}" method="get" class="filter-form">
+                <div class="filter-group filter-group-wide">
+                    <input type="text" name="keyword" th:value="${filter.keyword}"
+                           class="filter-input" placeholder="Tìm theo mã (ARD-001), tên thiết bị, thông số...">
+                </div>
+                <div class="filter-group">
+                    <select name="categoryId" class="filter-select">
+                        <option value="">-- Tất cả loại thiết bị --</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.id}"
+                                th:text="${cat.name}"
+                                th:selected="${filter.categoryId != null && filter.categoryId == cat.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select name="status" class="filter-select">
+                        <option value="">-- Tất cả tình trạng --</option>
+                        <option th:each="st : ${statuses}"
+                                th:value="${st.name()}"
+                                th:text="${st.displayName}"
+                                th:selected="${filter.status != null && filter.status.name() == st.name()}">
+                        </option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="submit" class="button button-primary btn-sm">
+                        <svg class="icon" style="width: 13px; height: 13px;"><use href="#icon-overview"/></svg>
+                        <span>Lọc</span>
+                    </button>
+                    <a th:href="@{/equipment}" class="button button-secondary btn-sm" title="Đặt lại bộ lọc">
+                        <span>Đặt lại</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table Panel -->
+        <div class="panel">
+            <div class="panel-heading">
+                <div>
+                    <h2>Danh sách thiết bị vật lý</h2>
+                    <p>Tổng cộng <strong th:text="${devicePage.totalElements}">0</strong> thiết bị phù hợp</p>
+                </div>
+                <a th:href="@{/equipment/new}" class="text-link">
+                    <span>Thêm thiết bị mới</span>
+                    <svg class="icon"><use href="#icon-arrow"/></svg>
+                </a>
+            </div>
+
+            <div class="table-scroll">
+                <table class="requests-table category-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 120px;">Mã thiết bị</th>
+                        <th>Tên thiết bị</th>
+                        <th style="width: 150px;">Loại thiết bị</th>
+                        <th>Thông số kỹ thuật</th>
+                        <th style="width: 160px;">Tình trạng</th>
+                        <th style="width: 160px; text-align: center;">Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${devicePage.empty}">
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-icon"><svg class="icon"><use href="#icon-equipment"/></svg></div>
+                                <h3>Không tìm thấy thiết bị nào</h3>
+                                <p>Hãy thử tìm kiếm với từ khóa khác hoặc bấm "Thêm thiết bị" để tạo mới.</p>
+                                <a th:href="@{/equipment/new}" class="button button-primary btn-sm" style="margin-top: 14px;">
+                                    <span>+ Thêm thiết bị ngay</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:each="d : ${devicePage.content}">
+                        <td>
+                            <span class="device-code" th:text="${d.code}">ARD-001</span>
+                        </td>
+                        <td>
+                            <strong th:text="${d.name}" style="font-weight: 600;">Arduino Uno R3</strong>
+                            <p th:if="${d.description != null and !d.description.empty}"
+                               th:text="${d.description}"
+                               style="font-size: 11px; color: var(--muted); margin-top: 3px; max-width: 320px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                            </p>
+                        </td>
+                        <td>
+                            <span th:text="${d.categoryName != null ? d.categoryName : 'Chưa phân loại'}"
+                                  style="color: #435165; font-size: 12px;">Arduino</span>
+                        </td>
+                        <td>
+                            <span th:text="${d.specifications != null and !d.specifications.empty ? d.specifications : '—'}"
+                                  style="color: var(--muted); font-size: 12px;">ATmega328P</span>
+                        </td>
+                        <td>
+                            <!-- Quick change status dropdown form -->
+                            <form th:action="@{'/equipment/' + ${d.id} + '/status'}" method="post" class="status-select-form">
+                                <input type="hidden" name="redirect" value="list">
+                                <select name="status" class="status-quick-select" onchange="this.form.submit()"
+                                        title="Bấm để đổi nhanh tình trạng thiết bị">
+                                    <option th:each="st : ${d.editableStatuses}"
+                                            th:value="${st.name()}"
+                                            th:text="${st.displayName}"
+                                            th:selected="${d.status != null && d.status.name() == st.name()}">
+                                    </option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <div class="table-actions" style="justify-content: center;">
+                                <a th:href="@{'/equipment/' + ${d.id}}"
+                                   class="button btn-outline btn-sm" title="Xem chi tiết">
+                                    Chi tiết
+                                </a>
+                                <a th:href="@{'/equipment/' + ${d.id} + '/edit'}"
+                                   class="button btn-outline btn-sm" title="Sửa thông tin">
+                                    Sửa
+                                </a>
+                                <form th:action="@{'/equipment/' + ${d.id} + '/delete'}" method="post"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị ' + this.getAttribute('data-code') + ' này không?');"
+                                      th:attr="data-code=${d.code}" style="margin: 0;">
+                                    <button type="submit" class="button btn-danger-outline btn-sm"
+                                            th:disabled="${d.status != null && d.status.name() == 'ON_LOAN'}"
+                                            th:title="${d.status != null && d.status.name() == 'ON_LOAN' ? 'Không thể xóa thiết bị đang mượn' : 'Xóa thiết bị'}">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div th:if="${devicePage.totalPages > 1}" class="pagination-row">
+                <span>
+                    Hiển thị trang <strong th:text="${devicePage.number + 1}">1</strong> / <span th:text="${devicePage.totalPages}">1</span>
+                    (Tổng <span th:text="${devicePage.totalElements}">0</span> thiết bị)
+                </span>
+                <div class="pagination-controls">
+                    <a th:if="${devicePage.hasPrevious()}"
+                       th:href="@{/equipment(page=${devicePage.number - 1}, keyword=${filter.keyword}, categoryId=${filter.categoryId}, status=${filter.status})}"
+                       class="page-btn" aria-label="Trang trước">&laquo;</a>
+
+                    <span th:each="pageNum : ${#numbers.sequence(0, devicePage.totalPages - 1)}">
+                        <a th:href="@{/equipment(page=${pageNum}, keyword=${filter.keyword}, categoryId=${filter.categoryId}, status=${filter.status})}"
+                           th:text="${pageNum + 1}"
+                           th:classappend="${pageNum == devicePage.number ? 'page-btn active' : 'page-btn'}">1</a>
+                    </span>
+
+                    <a th:if="${devicePage.hasNext()}"
+                       th:href="@{/equipment(page=${devicePage.number + 1}, keyword=${filter.keyword}, categoryId=${filter.categoryId}, status=${filter.status})}"
+                       class="page-btn" aria-label="Trang kế">&raquo;</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -13,6 +13,11 @@
     </div>
     <p class="sidebar-caption">QUẢN LÝ PHÒNG LAB</p>
     <nav class="sidebar-nav" aria-label="Các chức năng">
+        <a class="nav-link" th:if="${currentUser != null and currentUser.role.name() != 'STUDENT' or maintenanceUser != null and maintenanceUser.staff}"
+           th:href="@{/equipment}" th:classappend="${activeMenu == 'equipment-management' ? 'is-active' : ''}"
+           th:attr="aria-current=${activeMenu == 'equipment-management' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-equipment"/></svg><span>Quản lý thiết bị</span><span class="nav-active-dot"></span>
+        </a>
         <a class="nav-link" href="/student/equipment" th:href="@{/student/equipment}"
            th:classappend="${activeMenu == 'overview' || activeMenu == 'equipment' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'equipment' ? 'page' : null}">
