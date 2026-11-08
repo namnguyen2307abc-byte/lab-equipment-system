@@ -2,11 +2,11 @@ package com.lab.lab_equipment_system.features.equipment.service;
 
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryResponse;
-import com.lab.lab_equipment_system.features.equipment.entity.Category;
+import com.lab.lab_equipment_system.shared.entity.Category;
 import com.lab.lab_equipment_system.features.equipment.exception.EquipmentOperationException;
 import com.lab.lab_equipment_system.features.equipment.exception.ResourceNotFoundException;
-import com.lab.lab_equipment_system.features.equipment.repository.CategoryRepository;
-import com.lab.lab_equipment_system.features.equipment.repository.DeviceRepository;
+import com.lab.lab_equipment_system.features.equipment.repository.EquipmentCategoryRepository;
+import com.lab.lab_equipment_system.features.equipment.repository.EquipmentCatalogRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +19,8 @@ import java.util.List;
  * Phụ trách: Thành viên 2 (Tuấn) - Module 2.0: Danh mục và quản lý thiết bị
  * ============================================================================
  * Xử lý toàn bộ logic nghiệp vụ thực tế cho Danh mục / Loại thiết bị:
- * - Giao tiếp với CategoryRepository để truy vấn bảng Categories trong SQL Server.
- * - Giao tiếp với DeviceRepository để kiểm tra ràng buộc số lượng thiết bị con.
+ * - Giao tiếp với EquipmentCategoryRepository để truy vấn bảng Categories trong SQL Server.
+ * - Giao tiếp với EquipmentCatalogRepository để kiểm tra ràng buộc số lượng thiết bị con.
  * - Quản lý giao dịch (@Transactional) bảo đảm an toàn dữ liệu.
  */
 @Service
@@ -28,13 +28,13 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     // Khai báo các repository cần thiết để thao tác dữ liệu
-    private final CategoryRepository categoryRepository;
-    private final DeviceRepository deviceRepository;
+    private final EquipmentCategoryRepository categoryRepository;
+    private final EquipmentCatalogRepository deviceRepository;
 
     /**
      * Dependency Injection qua Constructor (Khuyến nghị chuẩn của Spring Boot)
      */
-    public CategoryServiceImpl(CategoryRepository categoryRepository, DeviceRepository deviceRepository) {
+    public CategoryServiceImpl(EquipmentCategoryRepository categoryRepository, EquipmentCatalogRepository deviceRepository) {
         this.categoryRepository = categoryRepository;
         this.deviceRepository = deviceRepository;
     }
@@ -89,12 +89,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * NGHIỆP VỤ: Tìm Entity Category nội bộ theo ID
-     * - Phục vụ gán thực thể Category khi thêm/sửa thiết bị vật lý (Device).
+     * - Phục vụ gán thực thể Category khi thêm/sửa thiết bị vật lý (Equipment).
      * - Ném lỗi rõ ràng nếu ID không tồn tại.
      */
-    @Override
-    @Transactional(readOnly = true)
-    public Category findEntityById(Long id) {
+    private Category findEntityById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy loại thiết bị với mã ID: " + id));
     }

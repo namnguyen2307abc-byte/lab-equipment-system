@@ -4,7 +4,7 @@ import com.lab.lab_equipment_system.features.equipment.dto.CategoryRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceFilterRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceResponse;
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import com.lab.lab_equipment_system.features.equipment.exception.DuplicateEquipmentCodeException;
 import com.lab.lab_equipment_system.features.equipment.exception.EquipmentOperationException;
 import com.lab.lab_equipment_system.features.equipment.exception.ResourceNotFoundException;
@@ -37,22 +37,6 @@ public class EquipmentController {
     }
 
     /**
-     * Tự động chuyển hướng từ trang chủ (/) hoặc khi vừa đăng nhập xong sang trang quản lý thiết bị
-     */
-    @GetMapping("/")
-    public String rootRedirect() {
-        return "redirect:/equipment";
-    }
-
-    /**
-     * Điều hướng khi truy cập từ sidebar /ui?section=equipment sang /equipment
-     */
-    @GetMapping(value = "/ui", params = "section=equipment")
-    public String redirectFromSidebar() {
-        return "redirect:/equipment";
-    }
-
-    /**
      * Màn hình danh sách thiết bị (UC-EC-01, UC-EC-05)
      */
     @GetMapping("/equipment")
@@ -60,15 +44,15 @@ public class EquipmentController {
         Page<DeviceResponse> devicePage = deviceService.searchDevices(filter);
 
         model.addAttribute("pageTitle", "Quản lý thiết bị");
-        model.addAttribute("activeMenu", "equipment");
+        model.addAttribute("activeMenu", "equipment-management");
         model.addAttribute("devicePage", devicePage);
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("statuses", EquipmentStatus.displayableValues());
+        model.addAttribute("statuses", EquipmentStatus.values());
 
         // Thống kê nhanh tình trạng thiết bị
         model.addAttribute("totalCount", deviceService.countTotal());
         model.addAttribute("availableCount", deviceService.countByStatus(EquipmentStatus.AVAILABLE));
-        model.addAttribute("borrowedCount", deviceService.countByStatus(EquipmentStatus.BORROWED));
+        model.addAttribute("borrowedCount", deviceService.countByStatus(EquipmentStatus.ON_LOAN));
         model.addAttribute("maintenanceCount", deviceService.countByStatus(EquipmentStatus.UNDER_MAINTENANCE));
         model.addAttribute("retiredCount", deviceService.countByStatus(EquipmentStatus.RETIRED));
 
@@ -81,10 +65,10 @@ public class EquipmentController {
     @GetMapping("/equipment/new")
     public String showCreateForm(Model model) {
         model.addAttribute("pageTitle", "Thêm thiết bị mới");
-        model.addAttribute("activeMenu", "equipment");
+        model.addAttribute("activeMenu", "equipment-management");
         model.addAttribute("deviceRequest", new DeviceRequest());
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("statuses", EquipmentStatus.displayableValues());
+        model.addAttribute("statuses", EquipmentStatus.values());
         model.addAttribute("isEdit", false);
         return "equipment/form";
     }
@@ -99,9 +83,9 @@ public class EquipmentController {
                                   RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Thêm thiết bị mới");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("statuses", EquipmentStatus.displayableValues());
+            model.addAttribute("statuses", EquipmentStatus.values());
             model.addAttribute("isEdit", false);
             return "equipment/form";
         }
@@ -114,17 +98,17 @@ public class EquipmentController {
         } catch (DuplicateEquipmentCodeException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             model.addAttribute("pageTitle", "Thêm thiết bị mới");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("statuses", EquipmentStatus.displayableValues());
+            model.addAttribute("statuses", EquipmentStatus.values());
             model.addAttribute("isEdit", false);
             return "equipment/form";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Không thể tạo thiết bị: " + e.getMessage());
             model.addAttribute("pageTitle", "Thêm thiết bị mới");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("statuses", EquipmentStatus.displayableValues());
+            model.addAttribute("statuses", EquipmentStatus.values());
             model.addAttribute("isEdit", false);
             return "equipment/form";
         }
@@ -137,9 +121,9 @@ public class EquipmentController {
     public String showDetail(@PathVariable("id") Long id, Model model) {
         DeviceResponse device = deviceService.getDeviceById(id);
         model.addAttribute("pageTitle", "Chi tiết thiết bị · " + device.getCode());
-        model.addAttribute("activeMenu", "equipment");
+        model.addAttribute("activeMenu", "equipment-management");
         model.addAttribute("device", device);
-        model.addAttribute("statuses", EquipmentStatus.displayableValues());
+        model.addAttribute("statuses", EquipmentStatus.values());
         return "equipment/detail";
     }
 
@@ -159,11 +143,11 @@ public class EquipmentController {
         );
 
         model.addAttribute("pageTitle", "Chỉnh sửa thiết bị · " + device.getCode());
-        model.addAttribute("activeMenu", "equipment");
+        model.addAttribute("activeMenu", "equipment-management");
         model.addAttribute("deviceId", id);
         model.addAttribute("deviceRequest", request);
         model.addAttribute("categories", categoryService.getAllCategories());
-        model.addAttribute("statuses", EquipmentStatus.displayableValues());
+        model.addAttribute("statuses", EquipmentStatus.values());
         model.addAttribute("isEdit", true);
         return "equipment/form";
     }
@@ -179,10 +163,10 @@ public class EquipmentController {
                                   RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Chỉnh sửa thiết bị");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("deviceId", id);
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("statuses", EquipmentStatus.displayableValues());
+            model.addAttribute("statuses", EquipmentStatus.values());
             model.addAttribute("isEdit", true);
             return "equipment/form";
         }
@@ -195,19 +179,19 @@ public class EquipmentController {
         } catch (DuplicateEquipmentCodeException e) {
             bindingResult.rejectValue("code", "duplicate", e.getMessage());
             model.addAttribute("pageTitle", "Chỉnh sửa thiết bị");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("deviceId", id);
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("statuses", EquipmentStatus.displayableValues());
+            model.addAttribute("statuses", EquipmentStatus.values());
             model.addAttribute("isEdit", true);
             return "equipment/form";
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Không thể cập nhật thiết bị: " + e.getMessage());
             model.addAttribute("pageTitle", "Chỉnh sửa thiết bị");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("deviceId", id);
             model.addAttribute("categories", categoryService.getAllCategories());
-            model.addAttribute("statuses", EquipmentStatus.displayableValues());
+            model.addAttribute("statuses", EquipmentStatus.values());
             model.addAttribute("isEdit", true);
             return "equipment/form";
         }
@@ -263,7 +247,7 @@ public class EquipmentController {
     @GetMapping("/equipment/categories")
     public String listCategories(Model model) {
         model.addAttribute("pageTitle", "Quản lý loại thiết bị");
-        model.addAttribute("activeMenu", "equipment");
+        model.addAttribute("activeMenu", "equipment-management");
         model.addAttribute("categories", categoryService.getAllCategoriesWithDeviceCount());
         if (!model.containsAttribute("categoryRequest")) {
             model.addAttribute("categoryRequest", new CategoryRequest());
@@ -278,7 +262,7 @@ public class EquipmentController {
     public String showCreateCategoryForm(@RequestParam(value = "redirect", required = false) String redirectTarget,
                                          Model model) {
         model.addAttribute("pageTitle", "Thêm loại thiết bị mới");
-        model.addAttribute("activeMenu", "equipment");
+        model.addAttribute("activeMenu", "equipment-management");
         model.addAttribute("categoryRequest", new CategoryRequest());
         model.addAttribute("redirectTarget", redirectTarget);
         return "equipment/category-form";
@@ -295,7 +279,7 @@ public class EquipmentController {
                                  RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Thêm loại thiết bị mới");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("categories", categoryService.getAllCategoriesWithDeviceCount());
             model.addAttribute("redirectTarget", redirectTarget);
             return "equipment/category-form";
@@ -314,7 +298,7 @@ public class EquipmentController {
         } catch (EquipmentOperationException e) {
             bindingResult.rejectValue("name", "duplicate", e.getMessage());
             model.addAttribute("pageTitle", "Thêm loại thiết bị mới");
-            model.addAttribute("activeMenu", "equipment");
+            model.addAttribute("activeMenu", "equipment-management");
             model.addAttribute("categories", categoryService.getAllCategoriesWithDeviceCount());
             model.addAttribute("redirectTarget", redirectTarget);
             return "equipment/category-form";

@@ -16,6 +16,7 @@ public class AuthController {
 
     @GetMapping("/ui")
     public String ui(@RequestParam(value = "section", required = false) String section) {
+        if ("equipment".equalsIgnoreCase(section)) return "redirect:/equipment";
         if ("loans".equalsIgnoreCase(section)) {
             return "redirect:/student/loans";
         }

@@ -1,6 +1,6 @@
 package com.lab.lab_equipment_system.features.equipment.dto;
 
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 
 public class DeviceResponse {
 
@@ -27,9 +27,25 @@ public class DeviceResponse {
         this.categoryName = categoryName;
         this.status = status;
         this.statusDisplayName = status != null ? status.getDisplayName() : "";
-        this.statusBadgeClass = status != null ? status.getBadgeClass() : "";
+        this.statusBadgeClass = status != null ? badgeClass(status) : "";
         this.specifications = specifications;
         this.description = description;
+    }
+
+    public EquipmentStatus[] getEditableStatuses() {
+        if (status == EquipmentStatus.ON_LOAN || status == EquipmentStatus.UNDER_MAINTENANCE) {
+            return new EquipmentStatus[] {status};
+        }
+        return new EquipmentStatus[] {EquipmentStatus.AVAILABLE, EquipmentStatus.RETIRED};
+    }
+
+    private static String badgeClass(EquipmentStatus status) {
+        return switch (status) {
+            case AVAILABLE -> "badge-available";
+            case ON_LOAN -> "badge-borrowed";
+            case UNDER_MAINTENANCE -> "badge-maintenance";
+            case RETIRED -> "badge-retired";
+        };
     }
 
     public Long getId() {
@@ -79,7 +95,7 @@ public class DeviceResponse {
     public void setStatus(EquipmentStatus status) {
         this.status = status;
         this.statusDisplayName = status != null ? status.getDisplayName() : "";
-        this.statusBadgeClass = status != null ? status.getBadgeClass() : "";
+        this.statusBadgeClass = status != null ? badgeClass(status) : "";
     }
 
     public String getStatusDisplayName() {

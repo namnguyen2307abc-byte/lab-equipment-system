@@ -14,14 +14,6 @@
         </nav>
     </div>
     <div class="header-end">
-<<<<<<< HEAD
-        <span class="preview-badge">Bản xem mẫu</span>
-        <span class="header-separator"></span>
-        <div class="profile-preview" aria-label="Vai trò minh họa: nhân viên phòng lab">
-            <span class="avatar">NV</span>
-            <span class="profile-label"><strong>Nhân viên</strong><span>Phòng thí nghiệm</span></span>
-        </div>
-=======
         <a class="icon-button" th:if="${currentUser != null and currentUser.role.name() == 'STUDENT'}"
            th:href="@{/student/notifications}" title="Thông báo" aria-label="Thông báo" style="position: relative;">
             <svg class="icon"><use href="#icon-spark"/></svg>
@@ -55,7 +47,6 @@
                 <svg class="icon"><use href="#icon-close"/></svg>
             </button>
         </form>
->>>>>>> f4170c2d209c40d5cb30819debc5259c7fe046ab
     </div>
 </header>
 </body>

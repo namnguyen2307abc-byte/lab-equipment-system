@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment', ~{::main})}">
+      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment-management', ~{::main})}">
 <head>
     <title>Quản lý loại thiết bị · LabSpace</title>
 </head>
@@ -82,7 +82,8 @@
                                 <div class="table-actions" style="justify-content: center;">
                                     <!-- Edit Trigger Button -->
                                     <button type="button" class="button btn-outline btn-sm"
-                                            th:onclick="'populateEditModal(' + ${cat.id} + ', \'' + ${#strings.escapeJavaScript(cat.name)} + '\', \'' + ${#strings.escapeJavaScript(cat.description != null ? cat.description : '')} + '\')'">
+                                            th:attr="data-category-id=${cat.id},data-category-name=${cat.name},data-category-description=${cat.description}"
+                                            onclick="populateEditModal(this.dataset.categoryId, this.dataset.categoryName, this.dataset.categoryDescription || '')">
                                         Sửa
                                     </button>
                                     <!-- Delete Form -->

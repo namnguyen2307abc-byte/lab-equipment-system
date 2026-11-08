@@ -1,6 +1,6 @@
 package com.lab.lab_equipment_system.features.equipment.dto;
 
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import jakarta.validation.constraints.NotNull;
 
 public class DeviceStatusUpdateRequest {

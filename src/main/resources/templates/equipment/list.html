@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout('Quản lý thiết bị', 'equipment', ~{::main})}">
+      th:replace="~{fragments/layout :: layout('Quản lý thiết bị', 'equipment-management', ~{::main})}">
 <head>
     <title>Quản lý thiết bị · LabSpace</title>
 </head>
@@ -177,7 +177,7 @@
                                 <input type="hidden" name="redirect" value="list">
                                 <select name="status" class="status-quick-select" onchange="this.form.submit()"
                                         title="Bấm để đổi nhanh tình trạng thiết bị">
-                                    <option th:each="st : ${statuses}"
+                                    <option th:each="st : ${d.editableStatuses}"
                                             th:value="${st.name()}"
                                             th:text="${st.displayName}"
                                             th:selected="${d.status != null && d.status.name() == st.name()}">
@@ -199,8 +199,8 @@
                                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị ' + this.getAttribute('data-code') + ' này không?');"
                                       th:attr="data-code=${d.code}" style="margin: 0;">
                                     <button type="submit" class="button btn-danger-outline btn-sm"
-                                            th:disabled="${d.status != null && d.status.name() == 'BORROWED'}"
-                                            th:title="${d.status != null && d.status.name() == 'BORROWED' ? 'Không thể xóa thiết bị đang mượn' : 'Xóa thiết bị'}">
+                                            th:disabled="${d.status != null && d.status.name() == 'ON_LOAN'}"
+                                            th:title="${d.status != null && d.status.name() == 'ON_LOAN' ? 'Không thể xóa thiết bị đang mượn' : 'Xóa thiết bị'}">
                                         Xóa
                                     </button>
                                 </form>

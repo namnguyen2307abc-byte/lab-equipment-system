@@ -2,11 +2,11 @@ package com.lab.lab_equipment_system.features.equipment.service;
 
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryResponse;
-import com.lab.lab_equipment_system.features.equipment.entity.Category;
+import com.lab.lab_equipment_system.shared.entity.Category;
 import com.lab.lab_equipment_system.features.equipment.exception.EquipmentOperationException;
 import com.lab.lab_equipment_system.features.equipment.exception.ResourceNotFoundException;
-import com.lab.lab_equipment_system.features.equipment.repository.CategoryRepository;
-import com.lab.lab_equipment_system.features.equipment.repository.DeviceRepository;
+import com.lab.lab_equipment_system.features.equipment.repository.EquipmentCategoryRepository;
+import com.lab.lab_equipment_system.features.equipment.repository.EquipmentCatalogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,10 +25,10 @@ import static org.mockito.Mockito.*;
 class CategoryServiceTest {
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private EquipmentCategoryRepository categoryRepository;
 
     @Mock
-    private DeviceRepository deviceRepository;
+    private EquipmentCatalogRepository deviceRepository;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -37,7 +37,8 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        sampleCategory = new Category(1L, "Arduino", "Kit Arduino");
+        sampleCategory = new Category("Arduino", "Kit Arduino");
+        sampleCategory.setId(1L);
     }
 
     @Test
@@ -45,7 +46,9 @@ class CategoryServiceTest {
     void testCreateCategory_Success() {
         CategoryRequest request = new CategoryRequest("ESP32", "Kit ESP32 WiFi");
         when(categoryRepository.existsByNameIgnoreCase("ESP32")).thenReturn(false);
-        when(categoryRepository.save(any(Category.class))).thenReturn(new Category(2L, "ESP32", "Kit ESP32 WiFi"));
+        Category saved = new Category("ESP32", "Kit ESP32 WiFi");
+        saved.setId(2L);
+        when(categoryRepository.save(any(Category.class))).thenReturn(saved);
         when(deviceRepository.countByCategoryId(2L)).thenReturn(0L);
 
         CategoryResponse response = categoryService.createCategory(request);

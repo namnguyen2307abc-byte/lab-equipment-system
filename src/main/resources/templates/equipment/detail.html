@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment', ~{::main})}">
+      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment-management', ~{::main})}">
 <head>
     <title th:text="${pageTitle} + ' · LabSpace'">Chi tiết thiết bị · LabSpace</title>
 </head>
@@ -71,7 +71,7 @@
                         <form th:action="@{'/equipment/' + ${device.id} + '/status'}" method="post" style="display: flex; gap: 8px;">
                             <input type="hidden" name="redirect" value="detail">
                             <select name="status" class="filter-select" style="height: 34px; padding: 4px 10px; font-size: 12px;">
-                                <option th:each="st : ${statuses}"
+                                <option th:each="st : ${device.editableStatuses}"
                                         th:value="${st.name()}"
                                         th:text="${st.displayName}"
                                         th:selected="${device.status != null && device.status.name() == st.name()}">
@@ -114,7 +114,7 @@
                       onsubmit="return confirm('Bạn có chắc chắn muốn xóa thiết bị này không? Hành động này không thể hoàn tác!');"
                       style="margin: 0;">
                     <button type="submit" class="button btn-danger-outline"
-                            th:disabled="${device.status != null && device.status.name() == 'BORROWED'}">
+                            th:disabled="${device.status != null && device.status.name() == 'ON_LOAN'}">
                         <span>Xóa thiết bị này</span>
                     </button>
                 </form>

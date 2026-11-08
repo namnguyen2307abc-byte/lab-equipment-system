@@ -17,6 +17,7 @@ public class SecurityConfig {
         return http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/webjars/**", "/error").permitAll()
                 .requestMatchers("/student/loans", "/student/loans/**", "/student/notifications", "/student/notifications/**").hasRole("STUDENT")
+                .requestMatchers("/equipment", "/equipment/**", "/api/equipment", "/api/equipment/**", "/api/devices", "/api/devices/**", "/api/categories", "/api/categories/**").hasAnyRole("STAFF", "ADMIN")
                 .anyRequest().authenticated())
             .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/student/equipment", false).permitAll())
             .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())

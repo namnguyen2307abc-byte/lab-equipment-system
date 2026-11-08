@@ -2,7 +2,6 @@ package com.lab.lab_equipment_system.features.equipment.service;
 
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryResponse;
-import com.lab.lab_equipment_system.features.equipment.entity.Category;
 
 import java.util.List;
 
@@ -45,14 +44,6 @@ public interface CategoryService {
      */
     CategoryResponse getCategoryById(Long id);
 
-    /**
-     * Tìm thực thể (Entity) Category trong cơ sở dữ liệu theo ID.
-     * Dùng nội bộ trong tầng Service khi cần gán Category cho Device.
-     *
-     * @param id Khóa chính của Category
-     * @return Thực thể Category (Entity)
-     */
-    Category findEntityById(Long id);
 
     /**
      * Nghiệp vụ Thêm mới Loại thiết bị:

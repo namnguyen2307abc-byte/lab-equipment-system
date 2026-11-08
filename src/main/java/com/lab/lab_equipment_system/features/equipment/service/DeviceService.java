@@ -3,8 +3,7 @@ package com.lab.lab_equipment_system.features.equipment.service;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceFilterRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceResponse;
-import com.lab.lab_equipment_system.features.equipment.entity.Device;
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -59,14 +58,6 @@ public interface DeviceService {
      */
     DeviceResponse getDeviceByCode(String code);
 
-    /**
-     * Tìm kiếm thực thể Entity Device nội bộ trong hệ thống.
-     * Dùng khi các module khác (Mượn trả, Bảo trì) cần liên kết thực thể.
-     *
-     * @param id Khóa chính ID
-     * @return Entity Device
-     */
-    Device findEntityById(Long id);
 
     /**
      * Nghiệp vụ Thêm mới thiết bị vật lý (UC-EC-02):

@@ -1,6 +1,6 @@
 package com.lab.lab_equipment_system.features.equipment.dto;
 
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -21,7 +21,7 @@ public class DeviceRequest {
     @NotNull(message = "Vui lòng chọn tình trạng thiết bị")
     private EquipmentStatus status = EquipmentStatus.AVAILABLE;
 
-    @Size(max = 500, message = "Thông số kỹ thuật không được vượt quá 500 ký tự")
+    @Size(max = 4000, message = "Thông số kỹ thuật không được vượt quá 4000 ký tự")
     private String specifications;
 
     @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")

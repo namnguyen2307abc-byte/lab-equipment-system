@@ -1,6 +1,6 @@
 package com.lab.lab_equipment_system.features.equipment.dto;
 
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 
 public class DeviceFilterRequest {
 

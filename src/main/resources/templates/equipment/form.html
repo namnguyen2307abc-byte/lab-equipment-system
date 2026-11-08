@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment', ~{::main})}">
+      th:replace="~{fragments/layout :: layout(${pageTitle}, 'equipment-management', ~{::main})}">
 <head>
     <title th:text="${pageTitle} + ' · LabSpace'">Thiết bị · LabSpace</title>
 </head>
@@ -79,13 +79,13 @@
                         <label for="status" class="form-label form-label-required">Tình trạng thiết bị</label>
                         <select id="status" th:field="*{status}" class="form-select-full"
                                 th:classappend="${#fields.hasErrors('status') ? 'is-invalid' : ''}">
-                            <option th:each="st : ${statuses}"
+                            <option th:each="st : ${isEdit and (deviceRequest.status == T(com.lab.lab_equipment_system.shared.enums.EquipmentStatus).ON_LOAN or deviceRequest.status == T(com.lab.lab_equipment_system.shared.enums.EquipmentStatus).UNDER_MAINTENANCE) ? {deviceRequest.status} : inventoryStatuses}"
                                     th:value="${st.name()}"
                                     th:text="${st.displayName}">
                             </option>
                         </select>
                         <span th:if="${#fields.hasErrors('status')}" th:errors="*{status}" class="field-error"></span>
-                        <span class="form-help">Trạng thái khả dụng hiện tại trong kho của phòng lab.</span>
+                        <span class="form-help">Trạng thái đang mượn và bảo trì được cập nhật qua phiếu tương ứng.</span>
                     </div>
 
                     <!-- Thông số kỹ thuật -->

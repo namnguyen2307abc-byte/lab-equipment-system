@@ -4,7 +4,7 @@ import com.lab.lab_equipment_system.features.equipment.dto.DeviceFilterRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceResponse;
 import com.lab.lab_equipment_system.features.equipment.dto.DeviceStatusUpdateRequest;
-import com.lab.lab_equipment_system.features.equipment.entity.EquipmentStatus;
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import com.lab.lab_equipment_system.features.equipment.service.DeviceService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
