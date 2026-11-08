@@ -1,5 +1,7 @@
 package com.lab.lab_equipment_system.features.equipment.service;
 
+import com.lab.lab_equipment_system.shared.exception.ResourceNotFoundException;
+
 import com.lab.lab_equipment_system.features.equipment.dto.*;
 import com.lab.lab_equipment_system.features.equipment.mapper.StudentEquipmentMapper;
 import com.lab.lab_equipment_system.features.equipment.repository.*;
@@ -38,7 +40,7 @@ public class StudentEquipmentServiceImpl implements StudentEquipmentService {
     @Transactional(readOnly = true)
     public StudentEquipmentResponse getDeviceDetails(Long deviceId) {
         Equipment equipment = deviceRepository.findById(deviceId)
-            .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thiết bị: " + deviceId));
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thiết bị: " + deviceId));
         return StudentEquipmentMapper.toStudentEquipmentResponse(equipment);
     }
 

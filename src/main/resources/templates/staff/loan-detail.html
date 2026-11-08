@@ -1,63 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Chi tiết & Phê duyệt phiếu mượn</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container mt-4">
-    <a th:href="@{/staff/loans/borrow-requests}" class="btn btn-outline-secondary mb-3">← Quay lại danh sách</a>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, 'loan-processing', ~{::main})}">
+<head><title>Chi tiết phiếu mượn · LabSpace</title></head><body>
+<main id="main-content" class="page-content processing-content" tabindex="-1">
+<div class="page-heading"><div><p class="eyebrow">MƯỢN TRẢ THIẾT BỊ</p><h1>Chi tiết phiếu mượn</h1></div></div>
+<nav th:replace="~{staff/fragments :: navigation('detail')}"></nav>
+<div th:replace="~{staff/fragments :: messages}"></div>
 
-    <div class="card shadow-sm" th:if="${loan != null}">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Chi tiết phiếu mượn: <span th:text="${loan.requestCode}"></span></h4>
-            <span class="badge bg-warning text-dark fs-6" th:text="${loan.statusLabel}"></span>
-        </div>
+<a class="student-back" th:href="@{/staff/loans/borrow-requests}">← Danh sách phiếu mượn</a>
+<div class="processing-detail-grid"><section class="panel processing-card"><h2 th:text="${loan.requestCode}"></h2>
+<p><span class="processing-status" th:text="${loan.statusLabel}"></span></p>
+<dl class="processing-details"><dt>Sinh viên</dt><dd th:text="${loan.studentName}"></dd><dt>Email</dt><dd th:text="${loan.studentEmail}"></dd>
+<dt>Thiết bị</dt><dd><strong th:text="${loan.equipmentCode}"></strong> · <span th:text="${loan.equipmentName}"></span></dd>
+<dt>Tình trạng thiết bị</dt><dd th:text="${loan.equipmentStatusLabel}"></dd>
+<dt>Mục đích</dt><dd th:text="${loan.purpose}"></dd><dt>Ghi chú sinh viên</dt><dd th:text="${#strings.isEmpty(loan.notes) ? '—' : loan.notes}"></dd>
+<dt>Gửi yêu cầu</dt><dd th:text="${#temporals.format(loan.requestedAt, 'dd/MM/yyyy HH:mm')}"></dd>
+<dt>Bắt đầu mượn dự kiến</dt><dd th:text="${loan.borrowDate != null ? #temporals.format(loan.borrowDate, 'dd/MM/yyyy HH:mm') : '—'}"></dd>
+<dt>Hạn trả</dt><dd th:text="${#temporals.format(loan.dueAt, 'dd/MM/yyyy HH:mm')}"></dd>
+<dt>Đã bàn giao</dt><dd th:text="${loan.handedOverAt != null ? #temporals.format(loan.handedOverAt, 'dd/MM/yyyy HH:mm') : '—'}"></dd>
+<dt>Đã nhận trả</dt><dd th:text="${loan.returnedAt != null ? #temporals.format(loan.returnedAt, 'dd/MM/yyyy HH:mm') : '—'}"></dd>
+<dt>Người xử lý gần nhất</dt><dd th:text="${loan.processedByName}"></dd>
+<dt>Ghi chú nhân viên</dt><dd th:text="${#strings.isEmpty(loan.staffNotes) ? '—' : loan.staffNotes}"></dd>
+<dt th:if="${loan.status.name() == 'REJECTED'}">Lý do từ chối</dt><dd th:if="${loan.status.name() == 'REJECTED'}" th:text="${loan.rejectReason}"></dd>
+</dl></section>
+<section class="panel processing-card"><h2>Xử lý phiếu</h2>
+<div th:if="${loan.status.name() == 'PENDING'}">
+<form method="post" th:action="@{/staff/loans/approve/{id}(id=${loan.id})}" th:object="${approvalForm}" class="processing-action">
+<div class="form-field"><label for="approvalNotes">Ghi chú khi duyệt</label><textarea id="approvalNotes" th:field="*{staffNotes}" rows="3" maxlength="500"></textarea><small class="field-error" th:if="${#fields.hasErrors('staffNotes')}" th:errors="*{staffNotes}"></small></div>
+<button class="button button-primary" type="submit">Duyệt phiếu mượn</button></form>
+<form method="post" th:action="@{/staff/loans/reject/{id}(id=${loan.id})}" th:object="${rejectionForm}" class="processing-action">
+<div class="form-field"><label for="rejectionReason">Lý do từ chối <span class="req">*</span></label><textarea id="rejectionReason" th:field="*{rejectReason}" rows="3" maxlength="500" required></textarea><small class="field-error" th:if="${#fields.hasErrors('rejectReason')}" th:errors="*{rejectReason}"></small></div>
+<button class="button button-secondary" type="submit">Từ chối phiếu</button></form></div>
+<div th:if="${loan.status.name() == 'APPROVED'}"><p>Kiểm tra thiết bị và thẻ sinh viên trước khi xác nhận bàn giao.</p>
+<form method="post" th:action="@{/staff/loans/handover/{id}(id=${loan.id})}" class="processing-action"><button class="button button-primary" type="submit">Xác nhận đã bàn giao</button></form></div>
+<div th:if="${loan.status.name() == 'BORROWED' or loan.status.name() == 'RETURN_REQUESTED'}">
+<p>Chỉ xác nhận sau khi đã nhận lại thiết bị thực tế.</p><p th:if="${loan.equipmentStatus == 'UNDER_MAINTENANCE'}" class="processing-warning">Thiết bị đang bảo trì. Nhận trả không đồng nghĩa với hoàn tất sửa chữa.</p>
+<form method="post" th:action="@{/staff/loans/confirm-return/{id}(id=${loan.id})}" th:object="${returnForm}" class="processing-action">
+<div class="form-field"><label for="returnNotes">Ghi chú tình trạng khi nhận</label><textarea id="returnNotes" th:field="*{staffNotes}" rows="3" maxlength="500"></textarea><small class="field-error" th:if="${#fields.hasErrors('staffNotes')}" th:errors="*{staffNotes}"></small></div><button class="button button-primary" type="submit">Xác nhận đã nhận trả</button></form></div>
+<p th:if="${loan.status.name() == 'RETURNED' or loan.status.name() == 'REJECTED' or loan.status.name() == 'CANCELLED'}">Phiếu đã đóng, không còn thao tác xử lý.</p>
+</section></div>
 
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 border-end">
-                    <h5 class="text-primary mb-3">1. Thông tin sinh viên & Thời gian</h5>
-                    <p><strong>Sinh viên:</strong> <span th:text="${loan.studentName}"></span> (<span th:text="${loan.studentEmail}"></span>)</p>
-                    <p><strong>Mục đích mượn:</strong> <span th:text="${loan.purpose}"></span></p>
-                    <p><strong>Ghi chú của SV:</strong> <span th:text="${loan.notes}"></span></p>
-                    <hr>
-                    <p><strong>Ngày yêu cầu:</strong> <span th:text="${#temporals.format(loan.requestedAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-                    <p><strong>Hạn trả dự kiến:</strong> <span th:text="${#temporals.format(loan.dueAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-                </div>
-
-                <div class="col-md-6">
-                    <h5 class="text-primary mb-3">2. Thông tin thiết bị & Phê duyệt</h5>
-                    <p><strong>Mã thiết bị:</strong> <span class="badge bg-secondary" th:text="${loan.equipmentCode}"></span></p>
-                    <p><strong>Tên thiết bị:</strong> <span th:text="${loan.equipmentName}"></span></p>
-                    <p><strong>Trạng thái thiết bị:</strong> <span class="fw-bold text-success" th:text="${loan.equipmentStatus}"></span></p>
-
-                    <!-- Form Duyệt / Từ chối khi đang PENDING -->
-                    <div th:if="${loan.status.name() == 'PENDING'}" class="mt-3 p-3 bg-light border rounded">
-                        <form th:action="@{/staff/loans/approve/{id}(id=${loan.id})}" method="post" class="mb-3">
-                            <label class="form-label fw-bold">Ghi chú nhân viên (khi duyệt):</label>
-                            <input type="text" name="staffNotes" class="form-control form-control-sm mb-2" placeholder="Nhập ghi chú bàn giao...">
-                            <button type="submit" class="btn btn-success btn-sm">Phê duyệt phiếu mượn (Approve)</button>
-                        </form>
-
-                        <form th:action="@{/staff/loans/reject/{id}(id=${loan.id})}" method="post">
-                            <label class="form-label fw-bold text-danger">Lý do từ chối:</label>
-                            <input type="text" name="rejectReason" class="form-control form-control-sm mb-2" placeholder="Nhập lý do từ chối..." required>
-                            <button type="submit" class="btn btn-danger btn-sm">Từ chối phiếu mượn (Reject)</button>
-                        </form>
-                    </div>
-
-                    <!-- Nút Bàn giao khi đã APPROVED -->
-                    <div th:if="${loan.status.name() == 'APPROVED'}" class="mt-3">
-                        <form th:action="@{/staff/loans/handover/{id}(id=${loan.id})}" method="post">
-                            <button type="submit" class="btn btn-primary">Xác nhận bàn giao thiết bị (Handover)</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+</main></body></html>

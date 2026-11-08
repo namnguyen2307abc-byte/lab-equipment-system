@@ -1,5 +1,7 @@
 package com.lab.lab_equipment_system.features.loan.processing.dto;
 
+import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
+
 import com.lab.lab_equipment_system.shared.enums.LoanStatus;
 import java.time.LocalDateTime;
 
@@ -8,6 +10,8 @@ public class LoanProcessingDto {
     private String requestCode;
     private String studentName;
     private String studentEmail;
+    private Long equipmentId;
+    private LocalDateTime borrowDate;
     private String equipmentCode;
     private String equipmentName;
     private String equipmentStatus;
@@ -39,12 +43,21 @@ public class LoanProcessingDto {
     public String getStudentEmail() { return studentEmail; }
     public void setStudentEmail(String studentEmail) { this.studentEmail = studentEmail; }
 
+    public Long getEquipmentId() { return equipmentId; }
+    public void setEquipmentId(Long equipmentId) { this.equipmentId = equipmentId; }
+    public LocalDateTime getBorrowDate() { return borrowDate; }
+    public void setBorrowDate(LocalDateTime borrowDate) { this.borrowDate = borrowDate; }
+
     public String getEquipmentCode() { return equipmentCode; }
     public void setEquipmentCode(String equipmentCode) { this.equipmentCode = equipmentCode; }
 
     public String getEquipmentName() { return equipmentName; }
     public void setEquipmentName(String equipmentName) { this.equipmentName = equipmentName; }
 
+    public String getEquipmentStatusLabel() {
+        return equipmentStatus == null || equipmentStatus.isBlank() ? "—"
+            : EquipmentStatus.valueOf(equipmentStatus).getDisplayName();
+    }
     public String getEquipmentStatus() { return equipmentStatus; }
     public void setEquipmentStatus(String equipmentStatus) { this.equipmentStatus = equipmentStatus; }
 

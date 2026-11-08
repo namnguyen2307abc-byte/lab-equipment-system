@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<nav th:fragment="navigation(tab)" class="processing-tabs" aria-label="Xử lý mượn trả">
+<a th:href="@{/staff/loans/borrow-requests}" th:classappend="${tab == 'borrow' ? 'is-active' : ''}" th:attr="aria-current=${tab == 'borrow' ? 'page' : null}">Phiếu mượn</a>
+<a th:href="@{/staff/loans/return-requests}" th:classappend="${tab == 'return' ? 'is-active' : ''}" th:attr="aria-current=${tab == 'return' ? 'page' : null}">Nhận trả thiết bị</a>
+<a th:href="@{/staff/loans/history}" th:classappend="${tab == 'history' ? 'is-active' : ''}" th:attr="aria-current=${tab == 'history' ? 'page' : null}">Lịch sử</a>
+</nav>
+<div th:fragment="messages">
+<div th:if="${successMessage}" class="student-alert alert-success" role="status" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" class="student-alert alert-error" role="alert" th:text="${errorMessage}"></div>
+</div>
+</body></html>

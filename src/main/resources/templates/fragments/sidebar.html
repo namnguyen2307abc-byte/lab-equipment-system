@@ -23,6 +23,10 @@
            th:attr="aria-current=${activeMenu == 'equipment' ? 'page' : null}">
             <svg class="icon"><use href="#icon-equipment"/></svg><span>Tra cứu thiết bị</span><span class="nav-active-dot"></span>
         </a>
+        <a class="nav-link" sec:authorize="hasAnyRole('STAFF', 'ADMIN')" th:href="@{/staff/loans/borrow-requests}"
+           th:classappend="${activeMenu == 'loan-processing' ? 'is-active' : ''}" th:attr="aria-current=${activeMenu == 'loan-processing' ? 'page' : null}">
+            <svg class="icon"><use href="#icon-processing"/></svg><span>Xử lý mượn trả</span><span class="nav-active-dot"></span>
+        </a>
         <a class="nav-link" href="/student/loans" th:href="@{/student/loans}" sec:authorize="hasRole('STUDENT')"
            th:classappend="${activeMenu == 'loans' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'loans' ? 'page' : null}">

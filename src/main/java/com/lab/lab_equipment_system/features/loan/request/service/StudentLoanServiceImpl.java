@@ -1,5 +1,7 @@
 package com.lab.lab_equipment_system.features.loan.request.service;
 
+import com.lab.lab_equipment_system.shared.exception.ResourceNotFoundException;
+
 import com.lab.lab_equipment_system.features.loan.request.mapper.StudentLoanMapper;
 
 import com.lab.lab_equipment_system.shared.dto.UserResponse;
@@ -178,7 +180,7 @@ public class StudentLoanServiceImpl implements StudentLoanService {
     public void markNotificationAsRead(Long notificationId, UserResponse actor) {
         User student = requireStudent(actor);
         LoanNotification notification = loanNotificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("Kh\u00f4ng t\u00ecm th\u1ea5y th\u00f4ng b\u00e1o"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông báo."));
 
         if (notification.getStudent().getId().equals(student.getId())) {
             notification.setRead(true);

@@ -196,7 +196,9 @@ class SharedModelIntegrationTests {
                 StudentEquipmentController.class, StudentLoanController.class, MaintenanceController.class,
                 com.lab.lab_equipment_system.features.equipment.service.DeviceService.class,
                 com.lab.lab_equipment_system.features.equipment.service.CategoryService.class,
-                com.lab.lab_equipment_system.features.equipment.controller.EquipmentController.class)) {
+                com.lab.lab_equipment_system.features.equipment.controller.EquipmentController.class,
+                com.lab.lab_equipment_system.features.loan.processing.controller.LoanProcessingController.class,
+                com.lab.lab_equipment_system.features.loan.processing.service.LoanProcessingService.class)) {
             for (Method method : contract.getDeclaredMethods()) {
                 verifyDto(method.getGenericReturnType(), checked);
                 for (Type type : method.getGenericParameterTypes()) verifyDto(type, checked);

@@ -1,0 +1,6 @@
+<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head><title>Không thể thực hiện thao tác · LabSpace</title></head><body><main id="main-content" class="page-content" tabindex="-1">
+<section class="panel" style="padding:28px;max-width:760px"><p class="eyebrow" th:text="${'LỖI ' + errorCode}"></p><h1 th:text="${pageTitle}"></h1><p role="alert" th:text="${errorMessage}"></p>
+<a class="button button-primary" th:href="@{/}">Về trang chính</a>
+<a class="button button-secondary" th:if="${activeMenu == 'loan-processing'}" th:href="@{/staff/loans/borrow-requests}">Danh sách phiếu mượn</a>
+</section></main></body></html>

@@ -1,61 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Lịch sử mượn trả thiết bị</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container mt-4">
-    <div class="mb-4">
-        <a th:href="@{/staff/loans/borrow-requests}" class="btn btn-outline-primary">1. Quản lý phiếu mượn</a>
-        <a th:href="@{/staff/loans/return-requests}" class="btn btn-outline-primary">2. Quản lý phiếu trả</a>
-        <a th:href="@{/staff/loans/history}" class="btn btn-secondary">3. Lịch sử mượn trả</a>
-    </div>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, 'loan-processing', ~{::main})}">
+<head><title>Lịch sử mượn trả · LabSpace</title></head><body>
+<main id="main-content" class="page-content processing-content" tabindex="-1">
+<div class="page-heading"><div><p class="eyebrow">MƯỢN TRẢ THIẾT BỊ</p><h1>Lịch sử mượn trả</h1></div></div>
+<nav th:replace="~{staff/fragments :: navigation('history')}"></nav>
+<div th:replace="~{staff/fragments :: messages}"></div>
 
-    <div class="card shadow-sm">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Tra cứu lịch sử mượn, trả thiết bị</h4>
-            <form th:action="@{/staff/loans/history}" method="get" class="d-flex gap-2">
-                <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm"
-                       placeholder="Nhập mã TB hoặc tên SV..." style="width: 250px;">
-                <button type="submit" class="btn btn-sm btn-dark">Tìm kiếm</button>
-                <a th:href="@{/staff/loans/history}" class="btn btn-sm btn-outline-secondary">Làm mới</a>
-            </form>
-        </div>
+<section class="panel"><div class="panel-heading processing-heading"><div><h2>Phiếu đã đóng</h2><p>Các phiếu đã trả, bị từ chối hoặc đã hủy.</p></div>
+<form method="get" th:action="@{/staff/loans/history}" class="processing-filter"><label for="keyword">Tìm kiếm</label>
+<input id="keyword" name="keyword" th:value="${keyword}" maxlength="100" placeholder="Mã thiết bị hoặc tên sinh viên"><button class="button button-secondary" type="submit">Tìm</button><a th:href="@{/staff/loans/history}">Bỏ lọc</a></form></div>
+<div class="processing-table-wrap" tabindex="0" aria-label="Lịch sử mượn trả"><table class="processing-table"><thead><tr><th>Mã phiếu</th><th>Sinh viên</th><th>Thiết bị</th><th>Đã nhận trả</th><th>Trạng thái</th><th>Người xử lý gần nhất</th><th>Chi tiết</th></tr></thead>
+<tbody><tr th:each="item : ${historyList}"><td th:text="${item.requestCode}"></td><td th:text="${item.studentName}"></td>
+<td><strong th:text="${item.equipmentCode}"></strong><small th:text="${item.equipmentName}"></small></td>
+<td th:text="${item.returnedAt != null ? #temporals.format(item.returnedAt, 'dd/MM/yyyy HH:mm') : '—'}"></td>
+<td><span class="processing-status" th:text="${item.statusLabel}"></span></td><td th:text="${item.processedByName}"></td>
+<td><a th:href="@{/staff/loans/detail/{id}(id=${item.id})}">Xem phiếu</a></td></tr>
+<tr th:if="${#lists.isEmpty(historyList)}"><td colspan="7" class="processing-empty">Không có lịch sử phù hợp.</td></tr></tbody></table></div></section>
 
-        <div class="card-body">
-            <table class="table table-bordered table-striped align-middle">
-                <thead class="table-dark">
-                <tr>
-                    <th>Mã phiếu</th>
-                    <th>Sinh viên</th>
-                    <th>Mã TB</th>
-                    <th>Tên thiết bị</th>
-                    <th>Ngày mượn</th>
-                    <th>Ngày trả</th>
-                    <th>Ghi chú / Lý do</th>
-                    <th>Trạng thái</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${historyList}">
-                    <td th:text="${item.requestCode}"></td>
-                    <td th:text="${item.studentName}"></td>
-                    <td><strong th:text="${item.equipmentCode}"></strong></td>
-                    <td th:text="${item.equipmentName}"></td>
-                    <td th:text="${#temporals.format(item.requestedAt, 'dd/MM/yyyy HH:mm')}"></td>
-                    <td th:text="${item.returnedAt != null ? #temporals.format(item.returnedAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
-                    <td th:text="${item.rejectReason != null ? item.rejectReason : item.staffNotes}"></td>
-                    <td><span class="badge bg-secondary" th:text="${item.statusLabel}"></span></td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(historyList)}">
-                    <td colspan="8" class="text-center text-muted">Không tìm thấy bản ghi lịch sử nào.</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+</main></body></html>

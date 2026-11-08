@@ -29,9 +29,10 @@ class AccountServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        service = new AccountServiceImpl(users, encoder, org.mockito.Mockito.mock(AccountSessionService.class));
+        service = new AccountServiceImpl(users, encoder, org.mockito.Mockito.mock(AccountSessionService.class), org.mockito.Mockito.mock(jakarta.persistence.EntityManager.class));
         admin = new User("admin", "hash", "Quản trị viên", "admin@fpt.edu.vn", null, UserRole.ADMIN);
         admin.setId(1L);
+        lenient().when(users.findFirstByOrderByIdAsc()).thenReturn(Optional.of(admin));
     }
 
     private CreateAccountRequest createRequest() {

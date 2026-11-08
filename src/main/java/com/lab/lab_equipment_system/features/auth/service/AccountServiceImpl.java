@@ -1,5 +1,8 @@
 package com.lab.lab_equipment_system.features.auth.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+
 import com.lab.lab_equipment_system.shared.validation.PasswordRules;
 
 import com.lab.lab_equipment_system.shared.mapper.UserMapper;
@@ -20,11 +23,13 @@ public class AccountServiceImpl implements AccountService {
     private final UserRepository users;
     private final PasswordEncoder passwordEncoder;
     private final AccountSessionService sessions;
+    private final EntityManager entityManager;
 
-    public AccountServiceImpl(UserRepository users, PasswordEncoder passwordEncoder, AccountSessionService sessions) {
+    public AccountServiceImpl(UserRepository users, PasswordEncoder passwordEncoder, AccountSessionService sessions, EntityManager entityManager) {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
         this.sessions = sessions;
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -56,7 +61,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public UserResponse update(Long id, UpdateAccountRequest r, String actingUsername) {
-        User user = find(id);
+        User user = findForChange(id);
         String email = r.getEmail().trim();
         users.findByEmailIgnoreCase(email).filter(o -> !o.getId().equals(id))
             .ifPresent(o -> { throw new AccountRuleException("Email đã được sử dụng."); });
@@ -77,7 +82,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public UserResponse setActive(Long id, boolean active, String actingUsername) {
-        User user = find(id);
+        User user = findForChange(id);
         if (!active) {
             if (isSelf(user, actingUsername)) throw new AccountRuleException("Không thể tự khóa tài khoản của chính mình.");
             guardLastAdmin(user);
@@ -90,11 +95,22 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public void resetPassword(Long id, ResetPasswordRequest r) {
-        User user = find(id);
+        User user = findForChange(id);
         PasswordRules.requireValid(r.getNewPassword());
         user.setPasswordHash(passwordEncoder.encode(r.getNewPassword()));
         sessions.revokeUserSessions(id);
         users.save(user);
+    }
+
+    private User findForChange(Long id) {
+        // Serialize account mutations before checking the last active administrator.
+        // Lock the same permanent row first, then the target account; refresh stale JPA state.
+        User anchor = users.findFirstByOrderByIdAsc()
+            .orElseThrow(() -> new AccountRuleException("Không tìm thấy tài khoản."));
+        entityManager.refresh(anchor, LockModeType.PESSIMISTIC_WRITE);
+        User user = find(id);
+        entityManager.refresh(user, LockModeType.PESSIMISTIC_WRITE);
+        return user;
     }
 
     private User find(Long id) {

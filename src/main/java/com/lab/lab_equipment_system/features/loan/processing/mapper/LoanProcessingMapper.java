@@ -22,6 +22,7 @@ public class LoanProcessingMapper {
         }
 
         if (entity.getEquipment() != null) {
+            dto.setEquipmentId(entity.getEquipment().getId());
             dto.setEquipmentCode(entity.getEquipment().getCode());
             dto.setEquipmentName(entity.getEquipment().getName());
             dto.setEquipmentStatus(entity.getEquipment().getStatus() != null ? entity.getEquipment().getStatus().toString() : "");
@@ -37,6 +38,7 @@ public class LoanProcessingMapper {
         dto.setNotes(entity.getNotes());
         dto.setRejectReason(entity.getRejectReason());
         dto.setStaffNotes(entity.getStaffNotes());
+        dto.setBorrowDate(entity.getBorrowDate());
         dto.setRequestedAt(entity.getRequestedAt());
         dto.setDueAt(entity.getDueAt());
         dto.setHandedOverAt(entity.getHandedOverAt());

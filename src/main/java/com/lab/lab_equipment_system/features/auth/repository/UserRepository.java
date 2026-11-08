@@ -1,5 +1,8 @@
 package com.lab.lab_equipment_system.features.auth.repository;
 
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
+
 import com.lab.lab_equipment_system.shared.entity.User;
 import com.lab.lab_equipment_system.shared.enums.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     boolean existsByUsernameIgnoreCase(String username);
     boolean existsByEmailIgnoreCase(String email);
+    // The oldest account is a stable mutex: accounts are never physically deleted by this module.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<User> findFirstByOrderByIdAsc();
+
     long countByRoleAndActiveTrue(UserRole role);
 
     @Query("SELECT u FROM User u WHERE " +
