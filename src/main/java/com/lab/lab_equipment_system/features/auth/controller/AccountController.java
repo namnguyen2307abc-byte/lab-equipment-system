@@ -1,9 +1,9 @@
 package com.lab.lab_equipment_system.features.auth.controller;
 
-import com.lab.lab_equipment_system.dto.UserResponse;
+import com.lab.lab_equipment_system.shared.dto.UserResponse;
 import com.lab.lab_equipment_system.features.auth.dto.*;
 import com.lab.lab_equipment_system.features.auth.service.AccountService;
-import com.lab.lab_equipment_system.service.UserService;
+import com.lab.lab_equipment_system.features.auth.service.UserService;
 import com.lab.lab_equipment_system.shared.enums.UserRole;
 import com.lab.lab_equipment_system.shared.exception.AccountRuleException;
 import jakarta.validation.Valid;

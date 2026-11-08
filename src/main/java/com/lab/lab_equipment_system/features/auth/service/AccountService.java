@@ -1,6 +1,6 @@
 package com.lab.lab_equipment_system.features.auth.service;
 
-import com.lab.lab_equipment_system.dto.UserResponse;
+import com.lab.lab_equipment_system.shared.dto.UserResponse;
 import com.lab.lab_equipment_system.features.auth.dto.*;
 import com.lab.lab_equipment_system.shared.enums.UserRole;
 

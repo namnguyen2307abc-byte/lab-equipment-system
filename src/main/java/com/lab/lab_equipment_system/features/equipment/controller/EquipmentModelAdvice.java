@@ -1,7 +1,7 @@
 package com.lab.lab_equipment_system.features.equipment.controller;
 
-import com.lab.lab_equipment_system.dto.UserResponse;
-import com.lab.lab_equipment_system.service.UserService;
+import com.lab.lab_equipment_system.shared.dto.UserResponse;
+import com.lab.lab_equipment_system.features.auth.service.UserService;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 

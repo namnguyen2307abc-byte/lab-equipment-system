@@ -7,7 +7,6 @@ import com.lab.lab_equipment_system.features.equipment.dto.DeviceResponse;
 import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import com.lab.lab_equipment_system.features.equipment.exception.DuplicateEquipmentCodeException;
 import com.lab.lab_equipment_system.features.equipment.exception.EquipmentOperationException;
-import com.lab.lab_equipment_system.features.equipment.exception.ResourceNotFoundException;
 import com.lab.lab_equipment_system.features.equipment.service.CategoryService;
 import com.lab.lab_equipment_system.features.equipment.service.DeviceService;
 import jakarta.validation.Valid;
