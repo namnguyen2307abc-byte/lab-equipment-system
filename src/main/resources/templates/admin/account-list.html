@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
+<head><title>Quản lý tài khoản</title></head><body>
+<main id="main-content" class="page-content" tabindex="-1">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">QUẢN TRỊ HỆ THỐNG</p>
+            <h1>Quản lý tài khoản</h1>
+            <p class="page-description">Tạo tài khoản, phân quyền sinh viên / nhân viên / quản trị viên và khóa hoặc mở khóa người dùng.</p>
+        </div>
+        <a class="button button-primary" th:href="@{/admin/accounts/new}">Tạo tài khoản</a>
+    </div>
+
+    <div th:if="${successMessage}" class="student-alert alert-success" style="margin-bottom:16px"><span th:text="${successMessage}"></span></div>
+    <div th:if="${errorMessage}" class="student-alert alert-error" style="margin-bottom:16px"><span th:text="${errorMessage}"></span></div>
+
+    <section class="panel">
+        <form method="get" th:action="@{/admin/accounts}" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+            <div class="form-field" style="margin:0;min-width:240px">
+                <label for="q">Tìm kiếm</label>
+                <input id="q" name="q" type="search" maxlength="80" th:value="${query}" placeholder="Tên đăng nhập, họ tên hoặc email">
+            </div>
+            <div class="form-field" style="margin:0">
+                <label for="role">Vai trò</label>
+                <select id="role" name="role">
+                    <option value="">Tất cả vai trò</option>
+                    <option th:each="r : ${roles}" th:value="${r.name()}" th:text="${r.label}" th:selected="${selectedRole == r}"></option>
+                </select>
+            </div>
+            <button class="button button-primary" type="submit">Lọc</button>
+            <a class="button button-secondary" th:href="@{/admin/accounts}">Bỏ lọc</a>
+        </form>
+
+        <div class="table-scroll">
+            <table class="student-table">
+                <caption class="sr-only">Danh sách tài khoản</caption>
+                <thead><tr><th>Tên đăng nhập</th><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th><span class="sr-only">Thao tác</span></th></tr></thead>
+                <tbody>
+                <tr th:each="a : ${accounts}">
+                    <td><strong th:text="${a.username}"></strong></td>
+                    <td th:text="${a.fullName}"></td>
+                    <td th:text="${a.email}"></td>
+                    <td th:text="${a.role.label}"></td>
+                    <td><span class="status-badge" th:text="${a.active ? 'Hoạt động' : 'Đã khóa'}"></span></td>
+                    <td class="table-actions">
+                        <a class="button button-secondary" th:href="@{/admin/accounts/{id}/edit(id=${a.id})}">Sửa</a>
+                        <form th:action="@{/admin/accounts/{id}/active(id=${a.id})}" method="post" style="display:inline">
+                            <input type="hidden" name="active" th:value="${!a.active}">
+                            <button class="button button-secondary" type="submit" th:text="${a.active ? 'Khóa' : 'Mở khóa'}"></button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(accounts)}"><td colspan="6" style="text-align:center;padding:24px">Không có tài khoản phù hợp.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main></body></html>
