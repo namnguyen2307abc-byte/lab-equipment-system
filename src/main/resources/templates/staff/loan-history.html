@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử mượn trả thiết bị</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <div class="mb-4">
+        <a th:href="@{/staff/loans/borrow-requests}" class="btn btn-outline-primary">1. Quản lý phiếu mượn</a>
+        <a th:href="@{/staff/loans/return-requests}" class="btn btn-outline-primary">2. Quản lý phiếu trả</a>
+        <a th:href="@{/staff/loans/history}" class="btn btn-secondary">3. Lịch sử mượn trả</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Tra cứu lịch sử mượn, trả thiết bị</h4>
+            <form th:action="@{/staff/loans/history}" method="get" class="d-flex gap-2">
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control form-control-sm"
+                       placeholder="Nhập mã TB hoặc tên SV..." style="width: 250px;">
+                <button type="submit" class="btn btn-sm btn-dark">Tìm kiếm</button>
+                <a th:href="@{/staff/loans/history}" class="btn btn-sm btn-outline-secondary">Làm mới</a>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Mã phiếu</th>
+                    <th>Sinh viên</th>
+                    <th>Mã TB</th>
+                    <th>Tên thiết bị</th>
+                    <th>Ngày mượn</th>
+                    <th>Ngày trả</th>
+                    <th>Ghi chú / Lý do</th>
+                    <th>Trạng thái</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${historyList}">
+                    <td th:text="${item.requestCode}"></td>
+                    <td th:text="${item.studentName}"></td>
+                    <td><strong th:text="${item.equipmentCode}"></strong></td>
+                    <td th:text="${item.equipmentName}"></td>
+                    <td th:text="${#temporals.format(item.requestedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                    <td th:text="${item.returnedAt != null ? #temporals.format(item.returnedAt, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                    <td th:text="${item.rejectReason != null ? item.rejectReason : item.staffNotes}"></td>
+                    <td><span class="badge bg-secondary" th:text="${item.statusLabel}"></span></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(historyList)}">
+                    <td colspan="8" class="text-center text-muted">Không tìm thấy bản ghi lịch sử nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
