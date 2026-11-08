@@ -1,12 +1,14 @@
-package com.lab.lab_equipment_system.controller;
+package com.lab.lab_equipment_system.features.loan.request.controller;
 
-import com.lab.lab_equipment_system.dto.CreateLoanRequestDto;
+import com.lab.lab_equipment_system.features.equipment.service.StudentEquipmentService;
+import com.lab.lab_equipment_system.features.loan.request.mapper.StudentLoanMapper;
+import com.lab.lab_equipment_system.features.equipment.mapper.StudentEquipmentMapper;
+import com.lab.lab_equipment_system.shared.mapper.UserMapper;
 import com.lab.lab_equipment_system.shared.entity.*;
 import com.lab.lab_equipment_system.shared.enums.*;
-import com.lab.lab_equipment_system.service.StudentLoanService;
-import com.lab.lab_equipment_system.dto.*;
-import com.lab.lab_equipment_system.mapper.StudentDtoMapper;
-import com.lab.lab_equipment_system.service.UserService;
+import com.lab.lab_equipment_system.features.loan.request.service.StudentLoanService;
+import com.lab.lab_equipment_system.shared.dto.UserResponse;
+import com.lab.lab_equipment_system.features.auth.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class StudentLoanControllerTests {
+
+    @Mock
+    private StudentEquipmentService studentEquipmentService;
 
     @Mock
     private StudentLoanService studentLoanService;
@@ -63,14 +68,14 @@ class StudentLoanControllerTests {
         loanRequest.setId(100L);
         loanRequest.setStatus(LoanStatus.PENDING);
 
-        lenient().when(userService.getCurrentUser()).thenReturn(StudentDtoMapper.toUserResponse(student));
+        lenient().when(userService.getCurrentUser()).thenReturn(UserMapper.toUserResponse(student));
     }
 
     @Test
     @DisplayName("GET /student/loans/create - Hiển thị form tạo phiếu mượn")
     void testGetCreateLoanForm() throws Exception {
-        when(studentLoanService.getDeviceDetails(10L)).thenReturn(StudentDtoMapper.toStudentEquipmentResponse(device));
-        when(studentLoanService.searchEquipment(null, null, EquipmentStatus.AVAILABLE)).thenReturn(List.of(StudentDtoMapper.toStudentEquipmentResponse(device)));
+        when(studentEquipmentService.getDeviceDetails(10L)).thenReturn(StudentEquipmentMapper.toStudentEquipmentResponse(device));
+        when(studentEquipmentService.searchEquipment(null, null, EquipmentStatus.AVAILABLE)).thenReturn(List.of(StudentEquipmentMapper.toStudentEquipmentResponse(device)));
 
         mockMvc.perform(get("/student/loans/create").param("deviceId", "10"))
                 .andExpect(status().isOk())
@@ -81,7 +86,7 @@ class StudentLoanControllerTests {
     @Test
     @DisplayName("POST /student/loans/create - Tạo phiếu mượn hợp lệ thành công")
     void testPostCreateLoanSuccess() throws Exception {
-        when(studentLoanService.createLoanRequest(any(UserResponse.class), any())).thenReturn(StudentDtoMapper.toStudentLoanResponse(loanRequest));
+        when(studentLoanService.createLoanRequest(any(UserResponse.class), any())).thenReturn(StudentLoanMapper.toStudentLoanResponse(loanRequest));
 
         mockMvc.perform(post("/student/loans/create")
                         .param("deviceId", "10")
@@ -95,7 +100,7 @@ class StudentLoanControllerTests {
     @Test
     @DisplayName("GET /student/loans - Xem danh sách phiếu mượn của tôi")
     void testGetLoanList() throws Exception {
-        when(studentLoanService.getPersonalLoanRequests(any(UserResponse.class), any())).thenReturn(List.of(StudentDtoMapper.toStudentLoanResponse(loanRequest)));
+        when(studentLoanService.getPersonalLoanRequests(any(UserResponse.class), any())).thenReturn(List.of(StudentLoanMapper.toStudentLoanResponse(loanRequest)));
 
         mockMvc.perform(get("/student/loans"))
                 .andExpect(status().isOk())
@@ -106,7 +111,7 @@ class StudentLoanControllerTests {
     @Test
     @DisplayName("GET /student/loans/{id} - Xem chi tiết phiếu mượn")
     void testGetLoanDetail() throws Exception {
-        when(studentLoanService.getLoanRequestDetails(eq(100L), any(UserResponse.class))).thenReturn(StudentDtoMapper.toStudentLoanResponse(loanRequest));
+        when(studentLoanService.getLoanRequestDetails(eq(100L), any(UserResponse.class))).thenReturn(StudentLoanMapper.toStudentLoanResponse(loanRequest));
 
         mockMvc.perform(get("/student/loans/100"))
                 .andExpect(status().isOk())
@@ -118,7 +123,7 @@ class StudentLoanControllerTests {
     @DisplayName("POST /student/loans/cancel - Hủy phiếu mượn Pending")
     void testCancelLoan() throws Exception {
         loanRequest.setStatus(LoanStatus.CANCELLED);
-        when(studentLoanService.cancelLoanRequest(any(UserResponse.class), any())).thenReturn(StudentDtoMapper.toStudentLoanResponse(loanRequest));
+        when(studentLoanService.cancelLoanRequest(any(UserResponse.class), any())).thenReturn(StudentLoanMapper.toStudentLoanResponse(loanRequest));
 
         mockMvc.perform(post("/student/loans/cancel")
                         .param("loanId", "100")
@@ -131,7 +136,7 @@ class StudentLoanControllerTests {
     @DisplayName("GET /student/notifications - Xem thông báo trạng thái")
     void testGetNotifications() throws Exception {
         LoanNotification notif = new LoanNotification(student, loanRequest, "Tiêu đề", "Nội dung", NotificationType.APPROVAL);
-        when(studentLoanService.getStudentNotifications(any(UserResponse.class))).thenReturn(List.of(StudentDtoMapper.toStudentNotificationResponse(notif)));
+        when(studentLoanService.getStudentNotifications(any(UserResponse.class))).thenReturn(List.of(StudentLoanMapper.toStudentNotificationResponse(notif)));
 
         mockMvc.perform(get("/student/notifications"))
                 .andExpect(status().isOk())

@@ -42,7 +42,7 @@ public class StudentLoanServiceImpl implements StudentLoanService {
     @Override
     public StudentLoanResponse createLoanRequest(UserResponse actor, CreateLoanRequestDto requestDto) {
         User student = requireStudent(actor);
-        Equipment device = deviceRepository.findById(requestDto.getDeviceId())
+        Equipment device = deviceRepository.findByIdForUpdate(requestDto.getDeviceId())
             .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thiết bị."));
 
         if (device.getStatus() != EquipmentStatus.AVAILABLE) {
@@ -50,10 +50,27 @@ public class StudentLoanServiceImpl implements StudentLoanService {
                     + device.getStatus().getDisplayName() + ").");
         }
 
-        if (requestDto.getBorrowDate() == null || requestDto.getDueAt() == null
-                || !requestDto.getDueAt().isAfter(LocalDateTime.now())
-                || !requestDto.getDueAt().isAfter(requestDto.getBorrowDate())) {
-            throw new IllegalArgumentException("Th\u1eddi gian d\u1ef1 ki\u1ebfn tr\u1ea3 ph\u1ea3i sau th\u1eddi \u0111i\u1ec3m hi\u1ec7n t\u1ea1i.");
+        LocalDateTime now = LocalDateTime.now();
+        if (requestDto.getBorrowDate() == null || !requestDto.getBorrowDate().isAfter(now)) {
+            throw new IllegalArgumentException("Thời gian bắt đầu mượn phải sau thời điểm hiện tại.");
+        }
+        if (requestDto.getDueAt() == null || !requestDto.getDueAt().isAfter(requestDto.getBorrowDate())) {
+            throw new IllegalArgumentException("Thời gian dự kiến trả phải sau thời gian bắt đầu mượn.");
+        }
+        // Locking the equipment row serializes duplicate submissions, including concurrent requests.
+        var overlapping = loanRequestRepository.findOverlappingRequests(student.getId(), device.getId(),
+            requestDto.getBorrowDate(), requestDto.getDueAt());
+        for (LoanRequest existing : overlapping) {
+            if (existing.getStatus() == LoanStatus.PENDING
+                    && existing.getBorrowDate().equals(requestDto.getBorrowDate())
+                    && existing.getDueAt().equals(requestDto.getDueAt())
+                    && normalized(existing.getPurpose()).equals(normalized(requestDto.getPurpose()))
+                    && normalized(existing.getNotes()).equals(normalized(requestDto.getNotes()))) {
+                return StudentLoanMapper.toStudentLoanResponse(existing);
+            }
+        }
+        if (!overlapping.isEmpty()) {
+            throw new IllegalStateException("Bạn đã có phiếu mượn thiết bị này trong khoảng thời gian đã chọn. Vui lòng kiểm tra danh sách phiếu mượn.");
         }
 
         String datePrefix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -178,6 +195,8 @@ public class StudentLoanServiceImpl implements StudentLoanService {
         }
         loanNotificationRepository.saveAll(unreadList);
     }
+    private static String normalized(String value) { return value == null ? "" : value.trim(); }
+
     private User requireStudent(UserResponse actor) {
         if (actor == null || actor.getId() == null) {
             throw new org.springframework.security.access.AccessDeniedException("Vui lòng đăng nhập.");

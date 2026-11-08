@@ -1,5 +1,7 @@
 package com.lab.lab_equipment_system.features.loan.request.repository;
 
+import java.time.LocalDateTime;
+
 import com.lab.lab_equipment_system.shared.entity.LoanRequest;
 import com.lab.lab_equipment_system.shared.enums.LoanStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +16,13 @@ import java.util.Optional;
 
 @Repository
 public interface LoanRequestRepository extends JpaRepository<LoanRequest, Long> {
+
+    @Query("select l from LoanRequest l where l.student.id = :studentId and l.equipment.id = :equipmentId "
+        + "and l.status in ('PENDING', 'APPROVED', 'BORROWED', 'RETURN_REQUESTED') "
+        + "and coalesce(l.borrowDate, l.requestedAt) < :dueAt and l.dueAt > :borrowDate order by l.requestedAt desc")
+    List<LoanRequest> findOverlappingRequests(@Param("studentId") Long studentId,
+        @Param("equipmentId") Long equipmentId, @Param("borrowDate") LocalDateTime borrowDate,
+        @Param("dueAt") LocalDateTime dueAt);
 
     Optional<LoanRequest> findByRequestCode(String requestCode);
 

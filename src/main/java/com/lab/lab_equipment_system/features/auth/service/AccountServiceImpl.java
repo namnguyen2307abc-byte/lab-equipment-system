@@ -1,5 +1,7 @@
 package com.lab.lab_equipment_system.features.auth.service;
 
+import com.lab.lab_equipment_system.shared.validation.PasswordRules;
+
 import com.lab.lab_equipment_system.shared.mapper.UserMapper;
 import com.lab.lab_equipment_system.shared.dto.UserResponse;
 import com.lab.lab_equipment_system.features.auth.dto.*;
@@ -17,10 +19,12 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
     private final UserRepository users;
     private final PasswordEncoder passwordEncoder;
+    private final AccountSessionService sessions;
 
-    public AccountServiceImpl(UserRepository users, PasswordEncoder passwordEncoder) {
+    public AccountServiceImpl(UserRepository users, PasswordEncoder passwordEncoder, AccountSessionService sessions) {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
+        this.sessions = sessions;
     }
 
     @Override
@@ -39,6 +43,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public UserResponse create(CreateAccountRequest r) {
+        PasswordRules.requireValid(r.getPassword());
         String username = r.getUsername().trim();
         String email = r.getEmail().trim();
         if (users.existsByUsernameIgnoreCase(username)) throw new AccountRuleException("Tên đăng nhập đã tồn tại.");
@@ -59,10 +64,13 @@ public class AccountServiceImpl implements AccountService {
             if (isSelf(user, actingUsername)) throw new AccountRuleException("Không thể tự đổi vai trò của chính mình.");
             guardLastAdmin(user);
         }
+        boolean revoke = user.getRole() != r.getRole()
+            || (user.getUsername() == null && !user.getEmail().equalsIgnoreCase(email));
         user.setFullName(r.getFullName().trim());
         user.setEmail(email);
         user.setPhone(blankToNull(r.getPhone()));
         user.setRole(r.getRole());
+        if (revoke) sessions.revokeUserSessions(id);
         return UserMapper.toUserResponse(users.save(user));
     }
 
@@ -74,6 +82,7 @@ public class AccountServiceImpl implements AccountService {
             if (isSelf(user, actingUsername)) throw new AccountRuleException("Không thể tự khóa tài khoản của chính mình.");
             guardLastAdmin(user);
         }
+        if (user.isActive() != active) sessions.revokeUserSessions(id);
         user.setActive(active);
         return UserMapper.toUserResponse(users.save(user));
     }
@@ -82,7 +91,9 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void resetPassword(Long id, ResetPasswordRequest r) {
         User user = find(id);
+        PasswordRules.requireValid(r.getNewPassword());
         user.setPasswordHash(passwordEncoder.encode(r.getNewPassword()));
+        sessions.revokeUserSessions(id);
         users.save(user);
     }
 

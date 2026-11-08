@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <header class="app-header" th:fragment="header(pageTitle)">
     <div class="header-start">
@@ -14,7 +14,7 @@
         </nav>
     </div>
     <div class="header-end">
-        <a class="icon-button" th:if="${currentUser != null and currentUser.role.name() == 'STUDENT'}"
+        <a class="icon-button" sec:authorize="hasRole('STUDENT')"
            th:href="@{/student/notifications}" title="Thông báo" aria-label="Thông báo" style="position: relative;">
             <svg class="icon"><use href="#icon-spark"/></svg>
             <span th:if="${unreadNotificationCount != null and unreadNotificationCount > 0}"

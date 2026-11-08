@@ -13,27 +13,27 @@
     </div>
     <p class="sidebar-caption">QUẢN LÝ PHÒNG LAB</p>
     <nav class="sidebar-nav" aria-label="Các chức năng">
-        <a class="nav-link" th:if="${currentUser != null and currentUser.role.name() != 'STUDENT' or maintenanceUser != null and maintenanceUser.staff}"
+        <a class="nav-link" sec:authorize="hasAnyRole('STAFF', 'ADMIN')"
            th:href="@{/equipment}" th:classappend="${activeMenu == 'equipment-management' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'equipment-management' ? 'page' : null}">
             <svg class="icon"><use href="#icon-equipment"/></svg><span>Quản lý thiết bị</span><span class="nav-active-dot"></span>
         </a>
-        <a class="nav-link" href="/student/equipment" th:href="@{/student/equipment}"
+        <a class="nav-link" href="/student/equipment" th:href="@{/student/equipment}" sec:authorize="hasAnyRole('STUDENT', 'STAFF', 'ADMIN')"
            th:classappend="${activeMenu == 'overview' || activeMenu == 'equipment' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'equipment' ? 'page' : null}">
             <svg class="icon"><use href="#icon-equipment"/></svg><span>Tra cứu thiết bị</span><span class="nav-active-dot"></span>
         </a>
-        <a class="nav-link" href="/student/loans" th:href="@{/student/loans}"
+        <a class="nav-link" href="/student/loans" th:href="@{/student/loans}" sec:authorize="hasRole('STUDENT')"
            th:classappend="${activeMenu == 'loans' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'loans' ? 'page' : null}">
             <svg class="icon"><use href="#icon-loans"/></svg><span>Phiếu mượn của tôi</span><span class="nav-active-dot"></span>
         </a>
-        <a class="nav-link" href="/student/loans/create" th:href="@{/student/loans/create}"
+        <a class="nav-link" href="/student/loans/create" th:href="@{/student/loans/create}" sec:authorize="hasRole('STUDENT')"
            th:classappend="${activeMenu == 'loans-create' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'loans-create' ? 'page' : null}">
             <svg class="icon"><use href="#icon-arrow"/></svg><span>Đăng ký mượn mới</span><span class="nav-active-dot"></span>
         </a>
-        <a class="nav-link" href="/student/notifications" th:href="@{/student/notifications}"
+        <a class="nav-link" href="/student/notifications" th:href="@{/student/notifications}" sec:authorize="hasRole('STUDENT')"
            th:classappend="${activeMenu == 'notifications' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'notifications' ? 'page' : null}">
             <svg class="icon"><use href="#icon-spark"/></svg><span>Thông báo cá nhân</span>
@@ -42,15 +42,10 @@
             <span class="nav-active-dot"></span>
         </a>
         <div class="nav-divider"></div>
-        <a class="nav-link" href="/maintenance" th:href="@{/maintenance}"
+        <a class="nav-link" href="/maintenance" th:href="@{/maintenance}" sec:authorize="hasAnyRole('STUDENT', 'STAFF', 'ADMIN')"
            th:classappend="${activeMenu == 'maintenance' ? 'is-active' : ''}"
            th:attr="aria-current=${activeMenu == 'maintenance' ? 'page' : null}">
             <svg class="icon"><use href="#icon-maintenance"/></svg><span>Bảo trì thiết bị</span><span class="nav-active-dot"></span>
-        </a>
-        <a class="nav-link" href="/ui?section=processing" th:href="@{/ui(section='processing')}"
-           th:classappend="${activeMenu == 'processing' ? 'is-active' : ''}"
-           th:attr="aria-current=${activeMenu == 'processing' ? 'page' : null}">
-            <svg class="icon"><use href="#icon-processing"/></svg><span>Xử lý mượn trả</span><span class="nav-active-dot"></span>
         </a>
         <div class="nav-divider" sec:authorize="hasRole('ADMIN')"></div>
         <a class="nav-link" href="/admin/accounts" th:href="@{/admin/accounts}" sec:authorize="hasRole('ADMIN')"

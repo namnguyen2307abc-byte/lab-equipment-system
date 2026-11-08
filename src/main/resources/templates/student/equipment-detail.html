@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
 <head>
     <title>Chi tiết thiết bị</title>
@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="student-form-grid">
+    <div class="student-form-grid" th:classappend="${currentUser != null and currentUser.role.name() != 'STUDENT' ? 'student-form-grid-readonly' : ''}">
         <!-- Thông tin chi tiết thiết bị -->
         <section class="panel">
             <div class="panel-heading">
@@ -63,7 +63,7 @@
         </section>
 
         <!-- Thao tác đăng ký & Quy định phòng Lab -->
-        <aside class="panel">
+        <aside class="panel" sec:authorize="hasRole('STUDENT')">
             <div class="panel-heading">
                 <div>
                     <h2>Đăng ký mượn thiết bị</h2>

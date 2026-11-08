@@ -579,3 +579,7 @@
 }
 
 .status-ON_LOAN { background: #eaf0fb; color: #426aab; }
+
+.student-form-grid.student-form-grid-readonly {
+    grid-template-columns: minmax(0, 1fr);
+}

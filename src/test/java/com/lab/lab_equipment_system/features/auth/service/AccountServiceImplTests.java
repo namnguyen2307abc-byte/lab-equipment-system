@@ -2,7 +2,7 @@ package com.lab.lab_equipment_system.features.auth.service;
 
 import com.lab.lab_equipment_system.features.auth.dto.CreateAccountRequest;
 import com.lab.lab_equipment_system.features.auth.dto.UpdateAccountRequest;
-import com.lab.lab_equipment_system.repository.UserRepository;
+import com.lab.lab_equipment_system.features.auth.repository.UserRepository;
 import com.lab.lab_equipment_system.shared.entity.User;
 import com.lab.lab_equipment_system.shared.enums.UserRole;
 import com.lab.lab_equipment_system.shared.exception.AccountRuleException;
@@ -29,7 +29,7 @@ class AccountServiceImplTests {
 
     @BeforeEach
     void setUp() {
-        service = new AccountServiceImpl(users, encoder);
+        service = new AccountServiceImpl(users, encoder, org.mockito.Mockito.mock(AccountSessionService.class));
         admin = new User("admin", "hash", "Quản trị viên", "admin@fpt.edu.vn", null, UserRole.ADMIN);
         admin.setId(1L);
     }

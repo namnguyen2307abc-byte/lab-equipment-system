@@ -29,6 +29,7 @@ public class AuthController {
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
                             @RequestParam(value = "logout", required = false) String logout,
+                            @RequestParam(value = "expired", required = false) String expired,
                             Model model) {
         if (error != null) {
             model.addAttribute("errorMessage", "Tên đăng nhập hoặc mật khẩu không chính xác.");
@@ -36,6 +37,7 @@ public class AuthController {
         if (logout != null) {
             model.addAttribute("successMessage", "Đã đăng xuất thành công.");
         }
+        if (expired != null) model.addAttribute("errorMessage", "Phiên đăng nhập hoặc quyền tài khoản đã thay đổi. Vui lòng đăng nhập lại.");
         return "auth/login";
     }
 

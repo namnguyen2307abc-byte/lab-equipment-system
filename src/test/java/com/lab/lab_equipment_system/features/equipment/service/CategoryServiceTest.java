@@ -4,7 +4,6 @@ import com.lab.lab_equipment_system.features.equipment.dto.CategoryRequest;
 import com.lab.lab_equipment_system.features.equipment.dto.CategoryResponse;
 import com.lab.lab_equipment_system.shared.entity.Category;
 import com.lab.lab_equipment_system.features.equipment.exception.EquipmentOperationException;
-import com.lab.lab_equipment_system.features.equipment.exception.ResourceNotFoundException;
 import com.lab.lab_equipment_system.features.equipment.repository.EquipmentCategoryRepository;
 import com.lab.lab_equipment_system.features.equipment.repository.EquipmentCatalogRepository;
 import org.junit.jupiter.api.BeforeEach;

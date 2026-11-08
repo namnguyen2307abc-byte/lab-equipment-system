@@ -1,5 +1,8 @@
 package com.lab.lab_equipment_system.features.equipment.repository;
 
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
+
 import com.lab.lab_equipment_system.shared.entity.Equipment;
 import com.lab.lab_equipment_system.shared.enums.EquipmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +15,10 @@ import java.util.Optional;
 
 @Repository
 public interface StudentEquipmentRepository extends JpaRepository<Equipment, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Equipment e where e.id = :id")
+    Optional<Equipment> findByIdForUpdate(@Param("id") Long id);
 
     Optional<Equipment> findByCode(String code);
 

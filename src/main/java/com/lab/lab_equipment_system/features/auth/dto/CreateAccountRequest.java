@@ -1,5 +1,7 @@
 package com.lab.lab_equipment_system.features.auth.dto;
 
+import com.lab.lab_equipment_system.shared.validation.Utf8ByteLength;
+
 import com.lab.lab_equipment_system.shared.enums.UserRole;
 import jakarta.validation.constraints.*;
 
@@ -25,7 +27,8 @@ public class CreateAccountRequest {
     private UserRole role = UserRole.STUDENT;
 
     @NotBlank(message = "Vui lòng nhập mật khẩu.")
-    @Size(min = 6, max = 72, message = "Mật khẩu từ 6 đến 72 ký tự.")
+    @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự.")
+    @Utf8ByteLength
     private String password;
 
     public String getUsername() { return username; }

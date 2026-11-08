@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
 <head>
     <title>Danh mục thiết bị</title>
@@ -12,7 +12,7 @@
             <h1>Danh mục thiết bị phòng Lab</h1>
             <p class="page-description">Tra cứu thông số kỹ thuật, tình trạng sẵn sàng và đăng ký mượn thiết bị phục vụ học tập, nghiên cứu.</p>
         </div>
-        <a class="button button-primary" th:href="@{/student/loans/create}">
+        <a class="button button-primary" th:href="@{/student/loans/create}" sec:authorize="hasRole('STUDENT')">
             <svg class="icon"><use href="#icon-arrow"/></svg>Đăng ký mượn thiết bị
         </a>
     </div>
@@ -107,7 +107,7 @@
                     <a class="button button-secondary" th:href="@{/student/equipment/{id}(id=${device.id})}">
                         Xem chi tiết
                     </a>
-                    <a th:if="${device.status.name() == 'AVAILABLE'}" class="button button-primary" th:href="@{/student/loans/create(deviceId=${device.id})}">
+                    <a th:if="${device.status.name() == 'AVAILABLE'}" class="button button-primary" th:href="@{/student/loans/create(deviceId=${device.id})}" sec:authorize="hasRole('STUDENT')">
                         <svg class="icon"><use href="#icon-arrow"/></svg>Mượn ngay
                     </a>
                 </div>

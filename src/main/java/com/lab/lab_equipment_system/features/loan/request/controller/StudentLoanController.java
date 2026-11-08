@@ -61,7 +61,7 @@ public class StudentLoanController {
             } catch (Exception ignored) {
             }
         }
-        dto.setBorrowDate(LocalDateTime.now().withMinute(0).withSecond(0).withNano(0));
+        dto.setBorrowDate(LocalDateTime.now().plusMinutes(10).withSecond(0).withNano(0));
         dto.setDueAt(LocalDateTime.now().plusDays(3).withHour(17).withMinute(0).withSecond(0).withNano(0));
 
         model.addAttribute("pageTitle", "Đăng ký mượn thiết bị");
