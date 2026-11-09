@@ -137,45 +137,89 @@ class CrossFeatureIntegrationTests {
         assertTrue(users.findById(adminB).orElseThrow().isActive());
     }
 
-    @Test void studentCannotMutateEquipmentOrCategoriesThroughApi() throws Exception {
+    @Test void studentCannotMutateEquipmentOrCategoriesThroughWeb() throws Exception {
         var principal = userService.loadUserByUsername("cross-student");
-        mvc.perform(get("/api/devices").with(user(principal))).andExpect(status().isForbidden());
-        mvc.perform(delete("/api/devices/" + idleId).with(user(principal)).with(csrf())).andExpect(status().isForbidden());
-        mvc.perform(patch("/api/devices/" + idleId + "/status").contentType("application/json")
-            .content("{\"status\":\"RETIRED\"}").with(user(principal)).with(csrf())).andExpect(status().isForbidden());
-        mvc.perform(post("/api/categories").contentType("application/json").content("{\"name\":\"Forged\"}")
+        mvc.perform(get("/equipment").with(user(principal))).andExpect(status().isForbidden());
+        mvc.perform(post("/equipment/" + idleId + "/delete").with(user(principal)).with(csrf())).andExpect(status().isForbidden());
+        mvc.perform(post("/equipment/" + idleId + "/status").param("status", "RETIRED")
+            .with(user(principal)).with(csrf())).andExpect(status().isForbidden());
+        mvc.perform(post("/equipment/categories").param("name", "Forged")
             .with(user(principal)).with(csrf())).andExpect(status().isForbidden());
         assertEquals(EquipmentStatus.AVAILABLE, equipment.findById(idleId).orElseThrow().getStatus());
+        assertTrue(equipment.existsById(idleId));
+        assertTrue(categories.findByName("Forged").isEmpty());
     }
 
-    @Test void equipmentApiStillRequiresCsrfForStaff() throws Exception {
-        mvc.perform(delete("/api/devices/" + idleId).with(user(userService.loadUserByUsername("cross-staff"))))
+    @Test void equipmentWebStillRequiresCsrfForStaff() throws Exception {
+        mvc.perform(post("/equipment/" + idleId + "/delete").with(user(userService.loadUserByUsername("cross-staff"))))
             .andExpect(status().isForbidden());
         assertTrue(equipment.existsById(idleId));
     }
 
     @Test void staffCannotSetOnLoanManually() throws Exception {
-        mvc.perform(patch("/api/devices/" + idleId + "/status").contentType("application/json")
-            .content("{\"status\":\"ON_LOAN\"}").with(user(userService.loadUserByUsername("cross-staff"))).with(csrf()))
-            .andExpect(status().isBadRequest());
+        mvc.perform(post("/equipment/" + idleId + "/status").param("status", "ON_LOAN")
+            .with(user(userService.loadUserByUsername("cross-staff"))).with(csrf()))
+            .andExpect(redirectedUrl("/equipment")).andExpect(flash().attributeExists("errorMessage"));
         assertEquals(EquipmentStatus.AVAILABLE, equipment.findById(idleId).orElseThrow().getStatus());
     }
 
     @Test void staffCannotDeleteEquipmentWithLoanHistory() throws Exception {
-        mvc.perform(delete("/api/devices/" + idleId).with(user(userService.loadUserByUsername("cross-staff"))).with(csrf()))
-            .andExpect(status().isBadRequest());
+        mvc.perform(post("/equipment/" + idleId + "/delete").with(user(userService.loadUserByUsername("cross-staff"))).with(csrf()))
+            .andExpect(redirectedUrl("/equipment")).andExpect(flash().attributeExists("errorMessage"));
         assertTrue(equipment.existsById(idleId));
     }
 
     @Test void staffCannotDeleteCategoryWithEquipment() throws Exception {
-        mvc.perform(delete("/api/categories/" + categoryId).with(user(userService.loadUserByUsername("cross-staff"))).with(csrf()))
-            .andExpect(status().isBadRequest());
+        mvc.perform(post("/equipment/categories/" + categoryId + "/delete").with(user(userService.loadUserByUsername("cross-staff"))).with(csrf()))
+            .andExpect(redirectedUrl("/equipment/categories")).andExpect(flash().attributeExists("errorMessage"));
         assertTrue(categories.existsById(categoryId));
     }
 
-    @Test void managementApiMissingDeviceReturns404() throws Exception {
-        mvc.perform(get("/api/devices/9223372036854775807").with(user(userService.loadUserByUsername("cross-staff"))))
+    @Test void managementWebMissingDeviceReturns404() throws Exception {
+        mvc.perform(get("/equipment/9223372036854775807").with(user(userService.loadUserByUsername("cross-staff"))))
             .andExpect(status().isNotFound());
+    }
+
+    @Test void removedEquipmentApisAreNotAvailable() throws Exception {
+        for (String route : List.of("/api/categories", "/api/devices", "/api/equipment")) {
+            mvc.perform(get(route).with(user(userService.loadUserByUsername("cross-staff"))))
+                .andExpect(status().isNotFound());
+        }
+    }
+
+    @Test void staffCanManageCategoriesAndEquipmentThroughWebForms() throws Exception {
+        var staff = userService.loadUserByUsername("cross-staff");
+        mvc.perform(post("/equipment/categories").param("name", "Web category").param("description", "Created using form")
+            .with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment/categories")).andExpect(flash().attributeExists("successMessage"));
+        Long newCategoryId = categories.findByName("Web category").orElseThrow().getId();
+        mvc.perform(post("/equipment/categories/" + newCategoryId).param("name", "Renamed web category")
+            .param("description", "Updated using form").with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment/categories")).andExpect(flash().attributeExists("successMessage"));
+        assertEquals("Renamed web category", categories.findById(newCategoryId).orElseThrow().getName());
+
+        mvc.perform(post("/equipment").param("code", "WEB-DEVICE").param("name", "Web device")
+            .param("categoryId", newCategoryId.toString()).param("status", "AVAILABLE")
+            .with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment")).andExpect(flash().attributeExists("successMessage"));
+        Long newDeviceId = equipment.findByCode("WEB-DEVICE").orElseThrow().getId();
+        mvc.perform(post("/equipment/" + newDeviceId + "/edit").param("code", "WEB-DEVICE")
+            .param("name", "Renamed web device").param("categoryId", newCategoryId.toString())
+            .param("status", "AVAILABLE").with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment/" + newDeviceId)).andExpect(flash().attributeExists("successMessage"));
+        assertEquals("Renamed web device", equipment.findById(newDeviceId).orElseThrow().getName());
+        mvc.perform(get("/equipment").param("keyword", "WEB-DEVICE").with(user(staff)))
+            .andExpect(status().isOk()).andExpect(content().string(containsString("Renamed web device")));
+
+        mvc.perform(post("/equipment/" + newDeviceId + "/status").param("status", "RETIRED").with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment")).andExpect(flash().attributeExists("successMessage"));
+        assertEquals(EquipmentStatus.RETIRED, equipment.findById(newDeviceId).orElseThrow().getStatus());
+        mvc.perform(post("/equipment/" + newDeviceId + "/delete").with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment")).andExpect(flash().attributeExists("successMessage"));
+        assertFalse(equipment.existsById(newDeviceId));
+        mvc.perform(post("/equipment/categories/" + newCategoryId + "/delete").with(user(staff)).with(csrf()))
+            .andExpect(redirectedUrl("/equipment/categories")).andExpect(flash().attributeExists("successMessage"));
+        assertFalse(categories.existsById(newCategoryId));
     }
 
     @Test void studentMissingDeviceMustNotCrashServer() {

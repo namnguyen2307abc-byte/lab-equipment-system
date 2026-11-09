@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/staff/**").hasAnyRole("STAFF", "ADMIN")
                 // Chức năng của sinh viên
                 .requestMatchers("/student/loans", "/student/loans/**", "/student/notifications", "/student/notifications/**").hasRole("STUDENT")
-                .requestMatchers("/equipment", "/equipment/**", "/api/equipment", "/api/equipment/**", "/api/devices", "/api/devices/**", "/api/categories", "/api/categories/**").hasAnyRole("STAFF", "ADMIN")
+                .requestMatchers("/equipment", "/equipment/**").hasAnyRole("STAFF", "ADMIN")
                 .anyRequest().authenticated())
             .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/student/equipment", false).permitAll())
             .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())

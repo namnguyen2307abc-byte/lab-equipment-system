@@ -247,8 +247,7 @@ class SharedModelIntegrationTests {
     @Test
     void equipmentPagesRenderAndManagementRequiresStaff() throws Exception {
         for (String route : List.of("/equipment", "/equipment/new", "/equipment/"+idleId,
-                "/equipment/"+heldId+"/edit", "/equipment/categories", "/equipment/categories/new",
-                "/api/equipment", "/api/categories")) {
+                "/equipment/"+heldId+"/edit", "/equipment/categories", "/equipment/categories/new")) {
             mvc.perform(get(route).with(user(userService.loadUserByUsername("staff"))))
                 .andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.not(containsString("<<<<<<<"))));
             mvc.perform(get(route).with(user(userService.loadUserByUsername("student")))).andExpect(status().isForbidden());
