@@ -3,4 +3,12 @@
 <div th:fragment="success" th:if="${successMessage}" class="maintenance-alert success-alert" role="status">
     <svg class="icon"><use href="#icon-check"/></svg><span th:text="${successMessage}"></span>
 </div>
+<ol th:fragment="timeline(events, first, last)" class="maintenance-timeline">
+    <li th:each="e, row : ${events}" th:if="${row.index >= first and row.index < last}">
+        <span class="timeline-dot"></span>
+        <div class="timeline-top"><strong th:text="${e.type.label}"></strong><time th:text="${e.createdAt}"></time></div>
+        <p class="timeline-actor" th:text="${e.actorName}"></p>
+        <p class="timeline-note preserve-lines" th:text="${e.note}"></p>
+    </li>
+</ol>
 </body></html>

@@ -30,11 +30,11 @@ public class MaintenanceController {
 
     @GetMapping
     String list(@ModelAttribute("searchRequest") MaintenanceSearchRequest request, Model model) {
-        model.addAttribute("pageTitle", "Bảo trì thiết bị");
+        CurrentUserResponse actor = identity.currentUser();
+        model.addAttribute("pageTitle", actor.isStaff() ? "Quản lý bảo trì" : "Báo hỏng của tôi");
         model.addAttribute("tickets", service.list(request));
-        model.addAttribute("stats", service.stats());
+        if (actor.isStaff()) model.addAttribute("stats", service.stats());
         model.addAttribute("statuses", MaintenanceStatus.values());
-        model.addAttribute("equipmentOptions", service.filterEquipment());
         model.addAttribute("selectedStatus", request.getStatus());
         model.addAttribute("selectedEquipment", request.getEquipmentId());
         model.addAttribute("query", request.getQ());

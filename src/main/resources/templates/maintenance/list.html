@@ -1,31 +1,65 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(${pageTitle}, ${activeMenu}, ~{::main})}">
-<head><title>Bảo trì thiết bị</title></head><body>
+<head><title>Bảo trì thiết bị</title></head>
+<body>
 <main id="main-content" class="page-content maintenance-content" tabindex="-1">
     <div class="page-heading">
-        <div><p class="eyebrow">CHĂM SÓC THIẾT BỊ</p><h1>Bảo trì thiết bị</h1><p class="page-description" th:text="${maintenanceUser.staff ? 'Tiếp nhận sự cố, theo dõi sửa chữa và đưa thiết bị trở lại hoạt động.' : 'Báo hỏng và theo dõi quá trình xử lý các sự cố bạn đã gửi.'}"></p></div>
-        <a th:if="${maintenanceUser.staff}" class="button button-primary" th:href="@{/maintenance/new}"><svg class="icon"><use href="#icon-maintenance"/></svg>Tạo phiếu bảo trì</a>
-        <a th:unless="${maintenanceUser.staff}" class="button button-primary" th:href="@{/maintenance/report}"><svg class="icon"><use href="#icon-maintenance"/></svg>Báo hỏng thiết bị</a>
+        <h1 th:text="${pageTitle}">Quản lý bảo trì</h1>
+        <a th:if="${maintenanceUser.staff}" class="button button-primary" th:href="@{/maintenance/new}">Tạo phiếu bảo trì</a>
+        <a th:unless="${maintenanceUser.staff}" class="button button-primary" th:href="@{/maintenance/report}">Báo hỏng thiết bị</a>
     </div>
     <div th:replace="~{maintenance/common :: success}"></div>
-    <section class="maintenance-stats" aria-label="Thống kê phiếu bảo trì">
-        <article><span>Tổng phiếu</span><strong th:text="${stats.total}">0</strong><small th:text="${maintenanceUser.staff ? 'Tất cả phiếu bảo trì' : 'Các phiếu bạn đã gửi'}"></small></article>
-        <article><span><i class="ticket-dot open-dot"></i>Chờ tiếp nhận</span><strong th:text="${stats.open}">0</strong><small>Cần đánh giá ban đầu</small></article>
-        <article><span><i class="ticket-dot progress-dot"></i>Đang xử lý</span><strong th:text="${stats.inProgress}">0</strong><small>Đang kiểm tra, sửa chữa</small></article>
-        <article><span><i class="ticket-dot closed-dot"></i>Đã hoàn tất</span><strong th:text="${stats.closed}">0</strong><small>Đã có kết luận xử lý</small></article>
+    <section th:if="${maintenanceUser.staff}" class="maintenance-stats" aria-label="Thống kê phiếu bảo trì">
+        <div><span>Tổng phiếu</span><strong th:text="${stats.total}">0</strong></div>
+        <div><span>Chờ tiếp nhận</span><strong th:text="${stats.open}">0</strong></div>
+        <div><span>Đang xử lý</span><strong th:text="${stats.inProgress}">0</strong></div>
+        <div><span>Đã hoàn tất</span><strong th:text="${stats.closed}">0</strong></div>
     </section>
-    <section class="panel maintenance-list-panel" aria-labelledby="ticket-list-title">
-        <div class="panel-heading"><div><h2 id="ticket-list-title">Danh sách phiếu bảo trì</h2><p>Thông tin mới nhất được hiển thị trước.</p></div><span class="maintenance-count" th:text="${tickets.totalElements + ' phiếu'}">0 phiếu</span></div>
+    <section class="panel maintenance-list-panel" aria-label="Danh sách phiếu">
         <form class="maintenance-filters" method="get" th:action="@{/maintenance}">
-            <div class="filter-query"><label for="search">Tìm thiết bị</label><input id="search" name="q" type="search" maxlength="80" th:value="${query}" placeholder="Mã hoặc tên thiết bị"></div>
-            <div><label for="status">Trạng thái</label><select id="status" name="status"><option value="">Tất cả trạng thái</option><option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}" th:selected="${selectedStatus == s.name()}"></option></select></div>
-            <div><label for="equipment">Thiết bị</label><select id="equipment" name="equipmentId"><option value="">Tất cả thiết bị</option><option th:each="e : ${equipmentOptions}" th:value="${e.id}" th:text="${e.code + ' · ' + e.name}" th:selected="${selectedEquipment == e.id}"></option></select></div>
-            <button class="button button-primary" type="submit">Lọc phiếu</button><a class="filter-reset" th:href="@{/maintenance}">Bỏ lọc</a>
+            <div class="filter-query">
+                <label for="search">Tìm thiết bị</label>
+                <input id="search" name="q" type="search" maxlength="80" th:value="${query}" placeholder="Mã hoặc tên thiết bị">
+            </div>
+            <div>
+                <label for="status">Trạng thái</label>
+                <select id="status" name="status">
+                    <option value="">Tất cả trạng thái</option>
+                    <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}" th:selected="${selectedStatus == s.name()}"></option>
+                </select>
+            </div>
+            <input th:if="${selectedEquipment != null}" type="hidden" name="equipmentId" th:value="${selectedEquipment}">
+            <button class="button button-primary" type="submit">Lọc phiếu</button>
+            <a th:if="${!#strings.isEmpty(query) or !#strings.isEmpty(selectedStatus) or selectedEquipment != null}" class="filter-reset" th:href="@{/maintenance}">Bỏ lọc</a>
         </form>
-        <div class="table-scroll"><table class="maintenance-table"><caption class="sr-only">Phiếu bảo trì theo bộ lọc đã chọn</caption><thead><tr><th scope="col">Phiếu / Ngày báo</th><th scope="col">Thiết bị</th><th scope="col">Người báo</th><th scope="col">Trạng thái</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead><tbody>
-            <tr th:each="t : ${tickets.content}"><td><a class="ticket-code" th:href="@{/maintenance/{id}(id=${t.id})}" th:text="${t.code}"></a><small th:text="${t.reportedAt}"></small></td><td><strong th:text="${t.equipmentName}"></strong><small th:text="${t.equipmentCode}"></small></td><td><span th:text="${t.reporterName}"></span><small th:text="${'Xử lý: ' + t.assignedStaffName}"></small></td><td><span class="ticket-status" th:classappend="${'status-' + t.status.name()}" th:text="${t.status.label}"></span></td><td><a class="table-detail-link" th:href="@{/maintenance/{id}(id=${t.id})}" th:attr="aria-label=${'Xem phiếu ' + t.code}"><svg class="icon"><use href="#icon-arrow"/></svg></a></td></tr>
-            <tr th:if="${tickets.empty}"><td colspan="5"><div class="empty-state maintenance-empty"><span class="empty-icon"><svg class="icon"><use href="#icon-maintenance"/></svg></span><h3>Chưa có phiếu phù hợp</h3><p>Thử thay đổi bộ lọc hoặc tạo phiếu khi phát hiện sự cố.</p></div></td></tr>
-        </tbody></table></div>
-        <div class="maintenance-pagination" th:if="${tickets.totalPages > 1}"><span th:text="${'Trang ' + (tickets.number + 1) + ' / ' + tickets.totalPages}"></span><div><a th:if="${tickets.hasPrevious()}" class="button button-secondary" th:href="@{/maintenance(page=${tickets.number - 1},status=${selectedStatus},equipmentId=${selectedEquipment},q=${query})}">Trang trước</a><a th:if="${tickets.hasNext()}" class="button button-secondary" th:href="@{/maintenance(page=${tickets.number + 1},status=${selectedStatus},equipmentId=${selectedEquipment},q=${query})}">Trang sau</a></div></div>
+        <p th:if="${selectedEquipment != null}" class="maintenance-filter-note" th:text="${'Đang lọc theo thiết bị #' + selectedEquipment}"></p>
+        <div class="table-scroll">
+            <table class="maintenance-table">
+                <caption class="sr-only">Danh sách phiếu theo bộ lọc</caption>
+                <thead><tr>
+                    <th scope="col">Phiếu / Ngày báo</th>
+                    <th scope="col">Thiết bị</th>
+                    <th th:if="${maintenanceUser.staff}" scope="col">Người báo / Tiếp nhận</th>
+                    <th scope="col">Trạng thái</th>
+                </tr></thead>
+                <tbody>
+                    <tr th:each="t : ${tickets.content}">
+                        <td><a class="ticket-code" th:href="@{/maintenance/{id}(id=${t.id})}" th:attr="aria-label=${'Xem phiếu ' + t.code}" th:text="${t.code}"></a><small th:text="${t.reportedAt}"></small></td>
+                        <td><strong th:text="${t.equipmentName}"></strong><small th:text="${t.equipmentCode}"></small></td>
+                        <td th:if="${maintenanceUser.staff}"><span th:text="${t.reporterName}"></span><small th:text="${'Tiếp nhận: ' + t.assignedStaffName}"></small></td>
+                        <td><span class="ticket-status" th:classappend="${'status-' + t.status.name()}" th:text="${t.status.label}"></span></td>
+                    </tr>
+                    <tr th:if="${tickets.empty}"><td th:colspan="${maintenanceUser.staff ? 4 : 3}"><div class="empty-state maintenance-empty"><h2>Chưa có phiếu phù hợp</h2><p th:text="${maintenanceUser.staff ? 'Thử thay đổi bộ lọc hoặc tạo phiếu bảo trì.' : 'Thử thay đổi bộ lọc hoặc báo hỏng thiết bị đang mượn.'}"></p></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="maintenance-pagination" th:if="${tickets.totalPages > 1}">
+            <span th:text="${'Trang ' + (tickets.number + 1) + ' / ' + tickets.totalPages}"></span>
+            <div>
+                <a th:if="${tickets.hasPrevious()}" class="button button-secondary" th:href="@{/maintenance(page=${tickets.number - 1},status=${selectedStatus},equipmentId=${selectedEquipment},q=${query})}">Trang trước</a>
+                <a th:if="${tickets.hasNext()}" class="button button-secondary" th:href="@{/maintenance(page=${tickets.number + 1},status=${selectedStatus},equipmentId=${selectedEquipment},q=${query})}">Trang sau</a>
+            </div>
+        </div>
     </section>
-</main></body></html>
+</main>
+</body></html>
